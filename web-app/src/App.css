@@ -117,43 +117,77 @@
 .discussion{
   display: flex;
   flex-direction: column;
+  font-family: "Helvetica Neue";
+  font-weight: bold;
+  font-size: 24px;
+  
 }
 .discussion-title{
   background-color: white;
   border: none;
-  color: black
+  color: black;
+  margin:0px 0px 40px 0px;
 }
+
 .discussion-body{
   display: flex;
   flex-direction: row;
-}
-
-.discussion-textbox{
-  width: 100%;
-}
-.discussion-textarea{
-
-}
-.discussion-submit{
-
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin:0px 0px 40px 0px;
 }
 
 .discussion-box{
   display: flex;
   flex-direction: column;
   max-width: 300px;
-  min-width: 150px;
+  min-width: 300px;
+  border: 3px solid #8A99E7;
+  border-radius: 9px;
+  padding: 30px;
+  margin: 20px 15px 20px 0px;
+  justify-content: space-between;
+  
 }
 .box-content{
   align-self: flex-start;
+  margin-bottom: 20px;
 }
 .box-name{
   align-self: flex-end;
+  font-size: 18px;
+  margin-bottom: 10px;
 }
 .box-vote{
   display: flex;
   align-self: flex-end;
 }
+
+.discussion-textbox{
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  left: 11vw;
+  bottom: 10vw;
+}
+.discussion-textarea{
+  width: 80%;
+  font-family: "Helvetica Neue";
+  font-weight: bold;
+  font-size: 24px;
+}
+.discussion-submit{
+  width: 15%;
+  font-weight: bold;
+  font-size: 24px;
+  border: 3px solid #8A99E7;
+  border-radius: 9px;
+  background-color: white;
+  color:#4D4D4D
+}
+
+
 
 .App-link {
   color: #61dafb;

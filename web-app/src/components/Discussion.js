@@ -6,10 +6,11 @@ import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 
 function Discussion(props) {
   const data = [
-    {content:"hello",name:"elliot"},
-    {content:"hello my name is",name:"sean"},
-    {content:"hello i love nick bostrom",name:"viet"},
-    {content:"hello i m very smart <3",name:"yong chun"},
+    {content:"hello",name:"Elliot"},
+    {content:"hello my name is",name:"Sean"},
+    {content:"hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom ",name:"Viet"},
+    {content:"hello i m very smart <3",name:"Yong Chun"},
+    {content:"hello i m very smart <3 hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3",name:"Yong Chun"},
     ]
 
   const InputTitle = () => {
@@ -18,7 +19,7 @@ function Discussion(props) {
         console.log('do validate')
       }
     }
-    return <input type="text" onKeyDown={handleKeyDown} />
+    return <input style={{fontWeight:"bold",fontSize:24,padding:10}} type="text" onKeyDown={handleKeyDown} />
   }
 
   function Box(props){
@@ -26,25 +27,27 @@ function Discussion(props) {
     answer = props.data.map((item) => (
       <div className = "discussion-box">
         <div className ="box-content">{item.content}</div>
-        <div className ="box-name">{item.name}</div>
-        <div className ="box-vote">
-          <div className="thumbup"><ThumbUpIcon/></div>
-          <div className="thumbdown"><ThumbDownIcon/></div>
-        </div>
+        <div className ="box-name">- {item.name}</div>
+        {/* <div className ="box-vote"> */}
+          {/* <div className="thumbup"><ThumbUpIcon/></div>
+          <div className="thumbdown"><ThumbDownIcon/></div> */}
+        {/* </div> */}
       </div>  
     ))
     return(<div className="discussion-body">{answer}</div>)
+    // return(<div className="discussion-body">{answer}</div>)
   }
   
   return (
     <div className="discussion">
       <div className="discussion-title">
+        <div style={{marginBottom:"20px"}}>Can Artificial Intelligence ever have consciousness?</div>
         <InputTitle type="text"></InputTitle>
       </div>
       <Box data={data}></Box>
       <form className="discussion-textbox">
         <textarea className="discussion-textarea"></textarea>
-        <button className="discussion-submit"type="submit"></button>
+        <button className="discussion-submit"type="submit">submit</button>
       </form>
     </div>
   );
