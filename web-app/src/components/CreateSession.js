@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import API from '../controllers/api';
  
 const CreateSession = () => {
@@ -7,14 +7,18 @@ const CreateSession = () => {
 	let discourseTextInput = React.createRef();
 	let restartTextInput = React.createRef();
 	let history = useHistory()
+	
 	async function onStart(e) {
 		e.preventDefault();
 		let username = nameTextInput.current.value;
 		let discourse = discourseTextInput.current.value;
 		let restart = restartTextInput.current.value;
 		let { roomId, secret } = await API.createSession(username, discourse);
-		history.push(`/${roomId}`);
+		history.push(`/${roomId}`);				
 		API.requestNodeData(roomId);
+
+	// 	const location = useLocation();
+	// location.pathname.slice(1)
 	}
 
     return (
