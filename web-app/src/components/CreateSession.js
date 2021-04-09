@@ -2,7 +2,7 @@ import React from 'react';
  
 const CreateSession = () => {
     return (
-       <div className="CreateSession">
+       <div className="CreateSession container">
 			<h2>Create Session</h2>
 			<form>
 			  <label>
@@ -16,7 +16,6 @@ const CreateSession = () => {
 				<br></br>
 				<br></br>
 			    <input className="input-box" type="text" name="restart" placeholder="Restart session with secret"/>
-				
 			    <br></br>
 				<br></br>
 				<br></br>

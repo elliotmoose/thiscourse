@@ -9,6 +9,7 @@ import {
   Redirect
 } from "react-router-dom"; 
 import CreateSession from './components/CreateSession';
+import Main from './components/Main';
 
 
 
@@ -17,7 +18,7 @@ class App extends Component {
     return (
       <Router>
        {/*All our Routes goes here!*/}
-       <Route path="/" component={CreateSession} />
+       <Route path="/" component={Main} />
       </Router>
     );
   }
