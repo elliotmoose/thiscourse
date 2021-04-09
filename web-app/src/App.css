@@ -13,17 +13,23 @@
   }
 }
 
-.CreateSession {
+.container{
   background-color: #FFFFFF;
   color: #4D4D4D;
   display: flex;
   flex-direction: column;
+  padding: 5vh 20vh;
+}
+
+/*Create Session Page CSS*/
+
+.CreateSession {
   /*align-items: center;*/
   /*justify-content: center;*/
   text-align: center;
   padding: 5vh 20vh;
   font-size: calc(10px + 2vmin);
-  color: black;
+  /*color: black;*/
   font-weight: bold;
 }
 
@@ -55,7 +61,22 @@
   padding-left: 1em;
 }
 
+/*Main Page CSS*/
 
+.vl1 {
+  margin-left: 1em;
+  border-left: 0.3em solid;
+  height: 4em;
+  border-color: #8A99E7;
+}
+.vl2 {
+  border-top: 0.3em solid ;
+  border-right: 0.3em solid ;
+  border-color: #8A99E7;
+  display: inline;
+  float: left;
+
+}
 
 .App-link {
   color: #61dafb;

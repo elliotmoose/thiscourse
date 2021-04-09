@@ -22,7 +22,7 @@ const CreateSession = () => {
 	}
 
     return (
-       <div className="CreateSession">
+       <div className="CreateSession container">
 			<h2>Create Session</h2>
 			<form>
 			  <label>
@@ -35,8 +35,7 @@ const CreateSession = () => {
 				or
 				<br></br>
 				<br></br>
-			    <input ref={restartTextInput} className="input-box" type="text" name="restart" placeholder="Restart session with secret"/>
-				
+			    <input className="input-box" type="text" name="restart" placeholder="Restart session with secret"/>
 			    <br></br>
 				<br></br>
 				<br></br>
