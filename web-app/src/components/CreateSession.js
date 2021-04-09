@@ -14,6 +14,7 @@ const CreateSession = () => {
 		let restart = restartTextInput.current.value;
 		let { roomId, secret } = await API.createSession(username, discourse);
 		history.push(`/${roomId}`);
+		API.requestNodeData(roomId);
 	}
 
     return (
