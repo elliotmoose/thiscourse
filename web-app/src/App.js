@@ -10,6 +10,7 @@ import {
 } from "react-router-dom"; 
 import CreateSession from './components/CreateSession';
 import Discussion from './components/Discussion';
+import Main from './components/Main';
 
 
 class App extends Component {
@@ -19,6 +20,7 @@ class App extends Component {
         <Router>
         {/*All our Routes goes here!*/}
         <Route path="/" exact={true} component={CreateSession} />
+        <Route path="/session/" component={Main} />
         <Route path="/discussion" component={Discussion} />
         </Router>
       </div>

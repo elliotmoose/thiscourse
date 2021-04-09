@@ -14,7 +14,8 @@ const CreateSession = () => {
 		let discourse = discourseTextInput.current.value;
 		let restart = restartTextInput.current.value;
 		let { roomId, secret } = await API.createSession(username, discourse);
-		history.push(`/${roomId}`);							
+		await API.socketConnect();
+		history.push(`/session/${roomId}`);							
 	}
 
     return (
@@ -31,7 +32,7 @@ const CreateSession = () => {
 				or
 				<br></br>
 				<br></br>
-			    <input className="input-box" type="text" name="restart" placeholder="Restart session with secret"/>
+			    <input ref={restartTextInput} className="input-box" type="text" name="restart" placeholder="Restart session with secret"/>
 			    <br></br>
 				<br></br>
 				<br></br>
