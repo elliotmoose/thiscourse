@@ -8,7 +8,12 @@ app.use(cors())
 app.options('*', cors())
 const http = require('http');
 const server = http.createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"]
+    }
+  });
 const uuid = require('uuid');
 const rwords = require('random-words');
 let rooms = {}
@@ -109,10 +114,27 @@ io.on('connection', (socket) => {
     socket.on('add-node', (data) => {
         let { node: { username, question} , parentId, roomId } = data;
         console.log(`* server: add node request received: question: ${question} by user: ${username} parentNode: ${parentId} `);
-        let roomNodes = rooms[roomId].nodes
+
+        if(!rooms[roomId]) {
+            console.log(`* server: Could not find room id: ${roomId}`);
+            return;
+        }
+        let roomNodes = rooms[roomId].nodes;
         let node = createNode(question, username, parentId);
         try {
             insertNode(node, parentId, roomNodes);
+
+            //test
+            let lastNodeId = node.id;
+            for(let i=0;i<2;i++) {
+                let child1 = createNode(question, username, lastNodeId);
+                let child2 = createNode(question, username, lastNodeId);
+                insertNode(child1, lastNodeId, roomNodes);
+                insertNode(child2, lastNodeId, roomNodes);
+                // console.log(child1)
+                lastNodeId = child1.id;
+            }
+
             socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {
             console.log(error);
