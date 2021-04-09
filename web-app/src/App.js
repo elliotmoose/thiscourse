@@ -11,6 +11,7 @@ import {
 import CreateSession from './components/CreateSession';
 import Main from './components/Main';
 import API from './controllers/api';
+import Discussion from './components/Discussion';
 
 
 
@@ -22,10 +23,13 @@ class App extends Component {
 
   render() {
     return (
-      <Router>
-       {/*All our Routes goes here!*/}
-       <Route path="/" component={Main} />
-      </Router>
+      <div className="container">
+        <Router>
+        {/*All our Routes goes here!*/}
+        <Route path="/" exact={true} component={CreateSession} />
+        <Route path="/discussion" component={Discussion} />
+        </Router>
+      </div>
     );
   }
 }

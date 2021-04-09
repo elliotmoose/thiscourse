@@ -78,6 +78,47 @@
 
 }
 
+.discussion{
+  display: flex;
+  flex-direction: column;
+}
+.discussion-title{
+  background-color: white;
+  border: none;
+  color: black
+}
+.discussion-body{
+  display: flex;
+  flex-direction: row;
+}
+
+.discussion-textbox{
+  width: 100%;
+}
+.discussion-textarea{
+
+}
+.discussion-submit{
+
+}
+
+.discussion-box{
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  min-width: 150px;
+}
+.box-content{
+  align-self: flex-start;
+}
+.box-name{
+  align-self: flex-end;
+}
+.box-vote{
+  display: flex;
+  align-self: flex-end;
+}
+
 .App-link {
   color: #61dafb;
 }
