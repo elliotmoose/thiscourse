@@ -16,7 +16,7 @@
 .container{
   background-color: #FFFFFF;
   color: #4D4D4D;
-  display: flex;
+  /*display: flex;*/
   flex-direction: column;
   padding: 5vh 20vh;
 }
@@ -63,19 +63,55 @@
 
 /*Main Page CSS*/
 
-.vl1 {
-  margin-left: 1em;
-  border-left: 0.3em solid;
-  height: 4em;
-  border-color: #8A99E7;
-}
-.vl2 {
-  border-top: 0.3em solid ;
-  border-right: 0.3em solid ;
-  border-color: #8A99E7;
-  display: inline;
-  float: left;
 
+
+.Main{
+  /*overflow: scroll;*/
+
+}
+
+
+.tree {
+  border-collapse: collapse;
+  margin-left: 1em;
+}
+
+/*td, th {
+  border-left: 0.3em solid #8A99E7;
+  text-align: left;
+  padding: 8px;
+}*/
+.tree-node {
+  /*text-align: left;*/
+  /*height: 4em;*/
+  /*width: 25em;*/
+  /*border: 5px solid red;*/
+  /*margin-left:  -5em;*/
+}
+
+.tree-node-container {
+  text-align: left;
+  /*height: 4em;*/
+  width: 70%;
+  padding: 0.2em 1em;
+  margin-top: 1em;
+  border: 1px solid #8A99E7;
+  box-sizing: border-box;
+  border-radius: 15px;
+  /*margin-left:  -5em;*/
+}
+
+
+.tree-top {
+  border-left: 0.3em solid #8A99E7;
+  height: 4em;
+}
+
+.tree-bot {
+  border-left: 0.3em solid #8A99E7;
+  height: 4em;
+  /*width: 65em;*/
+  border-top: 0.3em solid #8A99E7;
 }
 
 .discussion{

@@ -28,11 +28,49 @@ const Main = () => {
         }, 1000);
     }, [])
 
+	const branch_width = 25
+	var number_child = 3
+
     return (
        <div className="Main container">
        <p>{question}</p>
-       <div className="vl1"></div>
-       <div className="vl1 vl2" style={{width:"500px"}}></div>
+       <!-- Tree branch -->
+
+       <table className="tree" style={{width: `${(number_child-1)*branch_width}em`}} >
+		  <tr >
+		  	<th className = "tree-top"></th>
+		  </tr>
+		  <tr>
+		    <th style={{width:"65em"}} className = "tree-bot"></th>
+		    <th style={{width:"65em"}} className = "tree-bot"></th>
+		    <th className = "tree-top"></th>
+
+		  </tr>
+		</table>
+       <!-- Tree node -->
+
+		<table style={{width: `${(number_child)*branch_width}em`}} >
+		  <tr>
+		    <th style={{width:"65em"}} className="tree-node">
+		    	<div className = "tree-node-container">
+		    		<p>What is Intelligence?</p>
+		    		<p>“Intelligence is the ability to acquire and apply knowledge and skills.”</p>
+		    	</div>
+		    </th>
+		    <th style={{width:"65em"}} className="tree-node">
+		    	<div className = "tree-node-container">
+		    		<p>What is Intelligence?</p>
+		    		<p>“Intelligence is the ability to acquire and apply knowledge and skills.”</p>
+		    	</div>
+		    </th>		    
+		    <th style={{width:"65em"}} className="tree-node">
+		    	<div className = "tree-node-container">
+		    		<p>What is Intelligence?</p>
+		    		<p>“Intelligence is the ability to acquire and apply knowledge and skills.”</p>
+		    	</div>
+		    </th>
+		  </tr>
+		</table>
 
        </div>
     );
