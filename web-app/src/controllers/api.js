@@ -1,6 +1,6 @@
 const ioclient = require('socket.io-client');
 
-const SERVER_DOMAIN = 'http://localhost:3000';
+const SERVER_DOMAIN = 'http://localhost:9000';
 
 async function createSession(username, discourse) {
     let res = await fetch(`${SERVER_DOMAIN}/api/create-session`, {
@@ -19,8 +19,7 @@ function socketConnect(onDataUpdateCallback) {
         clientSocket.on('connect', resolve);
         clientSocket.on('nodes-update', (data) => {
             console.log(`= client: data received (${Object.values(data.nodes).length} node(s))`);
-            nodes = data.nodes
-            onDataUpdateCallback(nodes);
+            onDataUpdateCallback(data.nodes);
         });
     })
 }
@@ -52,3 +51,6 @@ function addAnswer(username, answerContent, nodeId, roomId) {
     
     clientSocket.emit('answer', { answer: { username, content: answerContent}, nodeId, roomId});    
 }
+
+const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer };
+export default API;
