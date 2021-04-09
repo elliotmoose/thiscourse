@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const cors = require('cors')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors())
+app.options('*', cors())
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
@@ -10,6 +13,7 @@ const uuid = require('uuid');
 const rwords = require('random-words');
 let rooms = {}
 
+const SERVER_PORT = 9000;
 
 function createAnswer(content, username) {
     return {
@@ -78,7 +82,8 @@ app.post('/api/create-session', (req, res) => {
 
         console.log(`* server: room created ${roomId}`);
 
-        res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
+        // res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
+        res.json({ roomId, secret });
     }
 });
 
@@ -132,8 +137,8 @@ io.on('connection', (socket) => {
     })
 });
 
-server.listen(3000, () => {
-    console.log('listening on *:3000');
+server.listen(SERVER_PORT, () => {
+    console.log(`listening on *:${SERVER_PORT}`);
 });
 
 
@@ -151,18 +156,18 @@ function sleep(time) {
     })    
 }
 setTimeout(async () => {
-    let res = await fetch('http://localhost:3000/api/create-session', {
+    let res = await fetch(`http://localhost:${SERVER_PORT}/api/create-session`, {
         method: 'POST',
         body: JSON.stringify({ discourse: 'Can AI Have intelligence?', username: 'Paolo' }),
         headers: { 'Content-Type': 'application/json' }
     })
 
-    let { url, secret } = await res.json();
-    console.log(`= client: USER GOES TO: ${url} AND SAVE SECRET: ${secret}`);
-    let split = url.split('/');
-    let roomId = split[split.length - 1];
+    let { roomId, secret } = await res.json();
+    console.log(`= client: USER GOES TO: ${roomId} AND SAVE SECRET: ${secret}`);
+    // let split = roomId.split('/');
+    // let roomId = split[split.length - 1];
 
-    clientSocket = new ioclient(`http://localhost:3000`);
+    clientSocket = new ioclient(`http://localhost:${SERVER_PORT}`);
     
     let nodes = {}
     //1. get all data
