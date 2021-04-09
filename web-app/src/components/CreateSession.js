@@ -4,14 +4,25 @@ const CreateSession = () => {
     return (
        <div className="CreateSession">
 			<h2>Create Session</h2>
-			<br></br>
-			<br></br>
-			<br></br>
-
-			<p>Home page body content</p>
 			<form>
 			  <label>
-			    <input className="input-box" type="text" name="name" />
+			    <input className="input-box" type="text" name="name" placeholder="Name"/>
+				<br></br>
+				<br></br>
+			    <input className="input-box" type="text" name="discourse" placeholder="Discourse"/>
+			    <br></br>
+				<br></br>
+				or
+				<br></br>
+				<br></br>
+			    <input className="input-box" type="text" name="restart" placeholder="Restart session with secret"/>
+				
+			    <br></br>
+				<br></br>
+				<br></br>
+				<br></br>
+				<input className="submit-button" type="submit" value="Go"/>
+
 			  </label>
 			</form>
        </div>

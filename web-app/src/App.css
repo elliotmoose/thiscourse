@@ -24,20 +24,38 @@
   padding: 5vh 20vh;
   font-size: calc(10px + 2vmin);
   color: black;
+  font-weight: bold;
 }
 
 .CreateSession > h2{
   text-align: left;
+  padding-bottom: 1em;
   /*justify-content: left;*/
+}
+
+.CreateSession .submit-button{
+  background: #C5F9CA;
+  border-radius: 15px;
+  width: 30%;
+  height: 2em;
+  font-size: 1em;
+  font-weight: bold;
+  border-color: transparent;
 }
 
 .input-box{
   width: 70%;
-  height: 5em;
+  height: 3em;
   background: #F8F8F8;
-  border-radius: 1em;
+  border-radius: 15px;
   border-color: transparent;
+  color: black;
+  font-size: 1em;
+  font-weight: bold;
+  padding-left: 1em;
 }
+
+
 
 .App-link {
   color: #61dafb;
