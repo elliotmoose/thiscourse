@@ -5,7 +5,7 @@ function buildTree(_nodes) {
         if(!nodes[node.parentId]) {
             continue;
         }
-        
+
         if(nodes[node.parentId].children) {
             nodes[node.parentId].children.push(node);            
         }
@@ -15,9 +15,25 @@ function buildTree(_nodes) {
     }
     
     let rootNode = Object.values(nodes).find((node)=>node.parentId==null);    
+
+    recurseWidths(rootNode);
     return rootNode;
 }
 
+
+function recurseWidths(node) {
+    let width = 0;
+    
+    if(node.children) {
+        for (let child of node.children) {
+            width += recurseWidths(child);
+        }
+    }
+
+    let nodeWidth = Math.max(1, width);
+    node.width = nodeWidth;
+    return nodeWidth;
+}
 
 const Tree = { buildTree };
 export default Tree;
