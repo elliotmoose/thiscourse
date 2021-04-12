@@ -1,32 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useParams } from 'react-router';
 import API from '../controllers/api';
 import Tree from '../controllers/tree';
 
 
 const Main = () => {
-	var question = "Can Artificial Intelligence ever have consciousness?"
-    const location = useLocation();
-	let roomId = location.pathname.split('/')[2];
+    const { sessionId } = useParams();
     
     let [rootNode, setRootNode] = useState({});
-    let latestRoot = useRef();
-
+    let [nodesByLevel, setNodesByLevel] = useState([]);
+    
     useEffect(()=>{
         API.apiEventEmitter.on('nodes-update', (data)=>{
             let treeRoot = Tree.buildTree(data);
-            console.log(treeRoot);
-            latestRoot.current = treeRoot;
             setRootNode(treeRoot);
+            
+            let _nodesByLevel = Tree.byLevel(treeRoot);
+            setNodesByLevel(_nodesByLevel);
         });
         
-        API.requestNodeData(roomId);
-
-        //test
-        setTimeout(()=>{
-            API.addNode('elliot', 'What is Intelligence?', latestRoot.current.id, roomId);            
-        }, 1000);
+        API.requestNodeData(sessionId);
     }, [])
+
+    var question = "Can Artificial Intelligence ever have consciousness?"
 
 	const branch_width = 25
 	var number_child = 3
@@ -34,7 +30,6 @@ const Main = () => {
     return (
        <div className="Main container">
        <p>{question}</p>
-    
 
        <table className="tree" style={{width: `${(number_child-1)*branch_width}em`}} >
 		  <tr >

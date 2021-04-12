@@ -20,8 +20,8 @@ class App extends Component {
         <Router>
         {/*All our Routes goes here!*/}
         <Route path="/" exact={true} component={CreateSession} />
-        <Route path="/session/" component={Main} />
-        <Route path="/discussion" component={Discussion} />
+        <Route path="/session/:sessionId" exact={true} component={Main} />
+        <Route path="/session/:sessionId/discussion/:questionNodeId" component={Discussion} />
         </Router>
       </div>
     );

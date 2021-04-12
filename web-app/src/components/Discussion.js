@@ -1,17 +1,47 @@
 import logo from '../logo.svg';
 import '../App.css';
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import ThumbDownIcon from '@material-ui/icons/ThumbDown';
-
+import Answer from './Answer';
+import { useParams } from 'react-router';
+import API from '../controllers/api';
+import { useEffect, useState } from 'react';
 
 function Discussion(props) {
-  const data = [
-    {content:"hello",name:"Elliot"},
-    {content:"hello my name is",name:"Sean"},
-    {content:"hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom ",name:"Viet"},
-    {content:"hello i m very smart <3",name:"Yong Chun"},
-    {content:"hello i m very smart <3 hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3",name:"Yong Chun"},
-    ]
+  const { sessionId, questionNodeId } = useParams();
+  
+  let [node, setNode] = useState(undefined);
+
+  useEffect(()=>{
+    if(!API.nodeData) {
+      API.requestNodeData(sessionId);
+    }
+    else {
+      let nodeData = API.nodeData[questionNodeId];
+      setNode(nodeData);
+    }
+    // API.apiEventEmitter.on('nodes-update', (data)=>{
+      
+    // });
+  },[])
+
+
+  if(!API.nodeData) {      
+    return <div>no node data yet</div>
+  }
+
+  if(!node) {
+    return <div>invalid question id: {questionNodeId}</div>
+  }
+
+
+  // const data = [
+  //   {content:"hello",name:"Elliot"},
+  //   {content:"hello my name is",name:"Sean"},
+  //   {content:"hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom hello i love nick bostrom ",name:"Viet"},
+  //   {content:"hello i m very smart <3",name:"Yong Chun"},
+  //   {content:"hello i m very smart <3 hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3",name:"Yong Chun"},
+  //   ]
+
+  const data = node.answers;
 
   const InputTitle = () => {
     const handleKeyDown = (event) => {
@@ -24,16 +54,7 @@ function Discussion(props) {
 
   function Box(props){
     let answer;
-    answer = props.data.map((item) => (
-      <div className = "discussion-box">
-        <div className ="box-content">{item.content}</div>
-        <div className ="box-name">- {item.name}</div>
-        {/* <div className ="box-vote"> */}
-          {/* <div className="thumbup"><ThumbUpIcon/></div>
-          <div className="thumbdown"><ThumbDownIcon/></div> */}
-        {/* </div> */}
-      </div>  
-    ))
+    answer = props.data.map((item) => <Answer item={item} />)
     return(<div className="discussion-body">{answer}</div>)
     // return(<div className="discussion-body">{answer}</div>)
   }

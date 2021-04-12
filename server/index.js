@@ -35,7 +35,7 @@ function createNode(question, username, parentId=null) {
         id: uuid.v4(),
         question,
         username,
-        answers: [],
+        answers: {},
         parentId
     }
 }
@@ -65,7 +65,24 @@ function insertAnswer(answer, nodeId, roomNodes) {
         throw `invalid node: not found ${nodeId}`;
     }
     
-    roomNodes[nodeId].answers.push(answer);
+    roomNodes[nodeId].answers[answer.id] = answer;
+}
+
+function voteAnswer(isUpVote, answerId, nodeId, roomNodes) {
+    if(roomNodes[nodeId] === undefined) {
+        throw `invalid node: not found ${nodeId}`;
+    }
+
+    if(roomNodes[nodeId].answers[answerId] === undefined) {
+        throw `invalid answer: not found ${answerId}`;
+    }
+
+    if (isUpVote) {
+        roomNodes[nodeId].answers[answerId].thumbsUp += 1
+    } 
+    else {
+        roomNodes[nodeId].answers[answerId].thumbsDown += 1
+    }
 }
 
 //------------------------------------------------------------------------------------------------
@@ -86,6 +103,29 @@ app.post('/api/create-session', (req, res) => {
         let secret = rwords({exactly: 4, wordsPerString:4, maxLength: 5, separator:'-'})[0];
 
         console.log(`* server: room created ${roomId}`);
+
+        //test
+        let roomNodes = rooms[roomId].nodes;
+
+        //test
+        let lastNodeId = root.id;
+
+        for(let i=0;i<2;i++) {
+            let child1 = createNode(`test question: ${i}`, username, lastNodeId);
+            let child2 = createNode(`test question: ${i}`, username, lastNodeId);
+            insertNode(child1, lastNodeId, roomNodes);
+            insertNode(child2, lastNodeId, roomNodes);
+
+            for(let j=0; j<10; j++) {
+                let answer = createAnswer(`test answer ${j}`, username);
+                insertAnswer(answer, child1.id, roomNodes);
+                insertAnswer(answer, child2.id, roomNodes);
+            }
+
+            // console.log(child1)
+            lastNodeId = child1.id;
+        }
+
 
         // res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
         res.json({ roomId, secret });
@@ -157,6 +197,16 @@ io.on('connection', (socket) => {
             console.log(error);
         }
     })
+
+    socket.on('vote-answer', (data) => {
+        let { nodeId, answerId, roomId, up } = data;
+        let roomNodes = rooms[roomId].nodes
+        try {
+            voteAnswer(up, answerId, nodeId, roomNodes);
+        } catch (error) {
+            console.log(error);
+        }
+    })
 });
 
 server.listen(SERVER_PORT, () => {
@@ -169,6 +219,7 @@ server.listen(SERVER_PORT, () => {
 //------------------------------------------------------------------------------------------------
 const ioclient = require('socket.io-client');
 const fetch = require('node-fetch');
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require('constants');
 
 function sleep(time) {
     return new Promise((resolve, reject) => {
