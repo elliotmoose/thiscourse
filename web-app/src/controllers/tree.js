@@ -35,5 +35,29 @@ function recurseWidths(node) {
     return nodeWidth;
 }
 
-const Tree = { buildTree };
+
+function byLevel(rootNode) {
+    let levels = []
+
+    let node = rootNode;
+    let queue = [rootNode];
+    while(queue.length != 0) {
+        let tempQueue = [] 
+        for(let node of queue) {
+            let children = node.children;
+            if(!children) {
+                continue;
+            }
+            //append to temp queue
+            tempQueue = [...tempQueue, ...children];
+        }
+        
+        levels.push(queue);
+        queue = tempQueue;
+    }
+
+    console.log(levels);
+    return levels;
+}
+const Tree = { buildTree, byLevel };
 export default Tree;

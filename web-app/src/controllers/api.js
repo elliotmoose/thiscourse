@@ -6,6 +6,7 @@ class APIEventEmitter extends EventEmitter {}
 let apiEventEmitter = new APIEventEmitter();
 
 let clientSocket;
+let nodeData;
 
 async function createSession(username, discourse) {
     let res = await fetch(`${SERVER_DOMAIN}/api/create-session`, {
@@ -23,6 +24,7 @@ function socketConnect() {
         clientSocket.on('connect', resolve);
         clientSocket.on('nodes-update', (data) => {
             console.log(`= client: data received (${Object.values(data.nodes).length} node(s))`);
+            nodeData = data.nodes;
             apiEventEmitter.emit('nodes-update', data.nodes);
         });
     })
@@ -56,5 +58,5 @@ function addAnswer(username, answerContent, nodeId, roomId) {
     clientSocket.emit('answer', { answer: { username, content: answerContent}, nodeId, roomId});    
 }
 
-const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter };
+const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData };
 export default API;
