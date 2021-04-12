@@ -8,6 +8,9 @@ let apiEventEmitter = new APIEventEmitter();
 let clientSocket;
 let nodeData;
 
+function getNodeData() {
+    return nodeData;
+}
 async function createSession(username, discourse) {
     let res = await fetch(`${SERVER_DOMAIN}/api/create-session`, {
         method: 'POST',
@@ -30,10 +33,10 @@ function socketConnect() {
     })
 }
 
-function requestNodeData(roomId) {
+async function requestNodeData(roomId) {
     if(clientSocket === undefined) {
-        console.error('No socket found: could not connect');
-        return {};
+        console.warn('No socket found: reconnecting...');
+        await socketConnect();
     }   
     
     clientSocket.emit('get-nodes', { roomId });
@@ -58,5 +61,5 @@ function addAnswer(username, answerContent, nodeId, roomId) {
     clientSocket.emit('answer', { answer: { username, content: answerContent}, nodeId, roomId});    
 }
 
-const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData };
+const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData };
 export default API;

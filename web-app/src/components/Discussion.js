@@ -11,11 +11,11 @@ function Discussion(props) {
   let [node, setNode] = useState(undefined);
 
   useEffect(()=>{
-    if(!API.nodeData) {
+    if(!API.getNodeData()) {
       API.requestNodeData(sessionId);
     }
     else {
-      let nodeData = API.nodeData[questionNodeId];
+      let nodeData = API.getNodeData()[questionNodeId];
       setNode(nodeData);
     }
     // API.apiEventEmitter.on('nodes-update', (data)=>{
@@ -24,7 +24,7 @@ function Discussion(props) {
   },[])
 
 
-  if(!API.nodeData) {      
+  if(!API.getNodeData()) {      
     return <div>no node data yet</div>
   }
 
@@ -54,7 +54,8 @@ function Discussion(props) {
 
   function Box(props){
     let answer;
-    answer = props.data.map((item) => <Answer item={item} />)
+    let answers = Object.values(node?.answers) || []
+    answer = answers.map((item) => <Answer item={item} />)
     return(<div className="discussion-body">{answer}</div>)
     // return(<div className="discussion-body">{answer}</div>)
   }

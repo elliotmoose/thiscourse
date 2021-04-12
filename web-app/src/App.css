@@ -109,7 +109,7 @@
 
 .tree-bot {
   border-left: 0.3em solid #8A99E7;
-  height: 4em;
+  /* height: 4em; */
   /*width: 65em;*/
   border-top: 0.3em solid #8A99E7;
 }
