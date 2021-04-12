@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import API from '../controllers/api';
 import Tree from '../controllers/tree';
 
+import QuestionNode from './QuestionNode'
 
 const Main = () => {
     const { sessionId } = useParams();
@@ -24,50 +25,46 @@ const Main = () => {
 
     var question = "Can Artificial Intelligence ever have consciousness?"
 
-    console.log(rootNode)
+    console.log(nodesByLevel)
 
 	const branch_width = 25
 	var number_child = 3
 
     return (
-       <div className="Main container">
-       <p>{question}</p>
+		<div className="Main container">
+		<p>{question}</p>
 
-       <table className="tree" style={{width: `${(number_child-1)*branch_width}em`}} >
-		  <tr >
-		  	<th className = "tree-top"></th>
-		  </tr>
-		  <tr>
-		    <th style={{width:"65em"}} className = "tree-bot"></th>
-		    <th style={{width:"65em"}} className = "tree-bot"></th>
-		    <th className = "tree-top"></th>
+		{/*Draw tree here*/}
 
-		  </tr>
-		</table>
-    
-
-		<table style={{width: `${(number_child)*branch_width}em`}} >
-		  <tr>
-		    <th style={{width:"65em"}} className="tree-node">
-		    	<div className = "tree-node-container">
-		    		<p>What is Intelligence?</p>
-		    		<p>“Intelligence is the ability to acquire and apply knowledge and skills.”</p>
-		    	</div>
-		    </th>
-		    <th style={{width:"65em"}} className="tree-node">
-		    	<div className = "tree-node-container">
-		    		<p>What is Intelligence?</p>
-		    		<p>“Intelligence is the ability to acquire and apply knowledge and skills.”</p>
-		    	</div>
-		    </th>		    
-		    <th style={{width:"65em"}} className="tree-node">
-		    	<div className = "tree-node-container">
-		    		<p>What is Intelligence?</p>
-		    		<p>“Intelligence is the ability to acquire and apply knowledge and skills.”</p>
-		    	</div>
-		    </th>
-		  </tr>
-		</table>
+		{nodesByLevel.map((level, index) => 
+			{
+				var node_branches = [];
+				var nodes = [];
+				var level_width = level.reduce((a,b)=>a+b.width,0)
+				for (var i = 0; i < level.length; i++){
+					if(i<level.length-1){
+						node_branches.push(<th style={{width:`${level[i].width*65}em`}} className = "tree-bot"></th>);
+					}
+					nodes.push(<QuestionNode item={level[i]}/>)
+			    }
+				return <div><table className="tree" style={{width: `${(level_width-1)*branch_width}em`}} >
+				  <tr >
+				  	<th className = "tree-top"></th>
+				  </tr>
+				  <tr>
+				    {node_branches}
+				    <th className = "tree-top"></th>
+				  </tr>
+				  {/*<QuestionNode item={node}/>*/}
+				</table>
+				<table style={{width: `${(level_width)*branch_width}em`}} >
+				  <tr>
+				    {nodes}
+				  </tr>
+				</table>
+				</div>
+			}
+		)}	
 
        </div>
     );

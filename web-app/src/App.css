@@ -92,9 +92,9 @@
 .tree-node-container {
   text-align: left;
   /*height: 4em;*/
-  width: 70%;
+  width: 20em;
   padding: 0.2em 1em;
-  margin-top: 1em;
+  margin: 0.5em 0em;
   border: 1px solid #8A99E7;
   box-sizing: border-box;
   border-radius: 15px;
