@@ -34,7 +34,7 @@ const Main = () => {
     return (
        <div className="Main container">
        <p>{question}</p>
-       <!-- Tree branch -->
+    
 
        <table className="tree" style={{width: `${(number_child-1)*branch_width}em`}} >
 		  <tr >
@@ -47,7 +47,7 @@ const Main = () => {
 
 		  </tr>
 		</table>
-       <!-- Tree node -->
+    
 
 		<table style={{width: `${(number_child)*branch_width}em`}} >
 		  <tr>
