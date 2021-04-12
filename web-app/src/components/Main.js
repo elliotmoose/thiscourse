@@ -24,6 +24,8 @@ const Main = () => {
 
     var question = "Can Artificial Intelligence ever have consciousness?"
 
+    console.log(rootNode)
+
 	const branch_width = 25
 	var number_child = 3
 
