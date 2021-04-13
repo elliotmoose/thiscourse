@@ -23,7 +23,7 @@ const Main = () => {
         API.requestNodeData(sessionId);
     }, [])
 
-    var question = "Can Artificial Intelligence ever have consciousness?"
+    var question = nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0] && nodesByLevel[0][0].question || 'loading question...';
 
     console.log(nodesByLevel)
 
@@ -31,12 +31,12 @@ const Main = () => {
 	var number_child = 3
 
     return (
-		<div className="Main container">
-		<p>{question}</p>
+		<div className="Main">
+		<p style={{fontWeight: 800, fontSize: 24}}>{question}</p>
 
 		{/*Draw tree here*/}
 
-		{nodesByLevel.map((level, index) => 
+		{nodesByLevel.slice(1).map((level, index) => 
 			{
 				var node_branches = [];
 				var nodes = [];

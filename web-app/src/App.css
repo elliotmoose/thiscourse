@@ -18,7 +18,9 @@
   color: #4D4D4D;
   /*display: flex;*/
   flex-direction: column;
-  padding: 5vh 20vh;
+  padding: 5vh 20vh;  
+  height: 90vh; 
+  width: calc(100vw-20vh*2);
 }
 
 /*Create Session Page CSS*/
@@ -120,12 +122,15 @@
   font-family: "Helvetica Neue";
   font-weight: bold;
   font-size: 24px;
-  
+  height: 100%;
+  /* height: 100vh;
+  width: 100vw; */
+  overflow: hidden;
 }
 .discussion-title{
   background-color: white;
   border: none;
-  color: black;
+  color: #8A99E7;
   margin:0px 0px 40px 0px;
 }
 
@@ -133,7 +138,9 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-between;  
+  overflow-y: scroll;
+  overflow-x: hidden;
   margin:0px 0px 40px 0px;
 }
 
@@ -144,19 +151,24 @@
   min-width: 300px;
   border: 3px solid #8A99E7;
   border-radius: 9px;
-  padding: 30px;
+  padding: 24px;
+  padding-bottom: 15px;
   margin: 20px 15px 20px 0px;
   justify-content: space-between;
   
 }
 .box-content{
   align-self: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  font-size: medium;
+  font-weight: 600;
 }
 .box-name{
   align-self: flex-end;
   font-size: 18px;
   margin-bottom: 10px;
+  font-size: medium;
+  font-weight: 700;
 }
 .box-vote{
   display: flex;
@@ -164,10 +176,10 @@
 }
 
 .discussion-textbox{
-  width: 70%;
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  position: fixed;
+  /* position: fixed; */
   left: 11vw;
   bottom: 10vw;
 }
@@ -187,7 +199,10 @@
   color:#4D4D4D
 }
 
-
+.thumb {
+  height: 30px;
+  width: 30px;
+}
 
 .App-link {
   color: #61dafb;

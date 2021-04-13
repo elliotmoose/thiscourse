@@ -1,13 +1,15 @@
 import logo from '../logo.svg';
 import '../App.css';
 import Answer from './Answer';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import API from '../controllers/api';
 import { useEffect, useState } from 'react';
+import { FullscreenExit } from '@material-ui/icons';
 
 function Discussion(props) {
   const { sessionId, questionNodeId } = useParams();
   
+  const history = useHistory()
   let [node, setNode] = useState(undefined);
 
   useEffect(()=>{
@@ -41,7 +43,8 @@ function Discussion(props) {
   //   {content:"hello i m very smart <3 hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3hello i m very smart <3",name:"Yong Chun"},
   //   ]
 
-  const data = node.answers;
+  let answers = Object.values(node?.answers) || []
+  let question = node.question;
 
   const InputTitle = () => {
     const handleKeyDown = (event) => {
@@ -52,25 +55,29 @@ function Discussion(props) {
     return <input style={{fontWeight:"bold",fontSize:24,padding:10}} type="text" onKeyDown={handleKeyDown} />
   }
 
-  function Box(props){
-    let answer;
-    let answers = Object.values(node?.answers) || []
-    answer = answers.map((item) => <Answer item={item} />)
-    return(<div className="discussion-body">{answer}</div>)
-    // return(<div className="discussion-body">{answer}</div>)
+
+  function exitDiscussion() {
+    history.goBack();
   }
   
   return (
     <div className="discussion">
-      <div className="discussion-title">
-        <div style={{marginBottom:"20px"}}>Can Artificial Intelligence ever have consciousness?</div>
-        <InputTitle type="text"></InputTitle>
+      <div onClick={exitDiscussion} style={{display: 'flex', justifyContent: 'flex-end', position: 'static', top: 12, right: 12, alignItems: 'center', cursor: 'pointer'}}>
+          <div style={{marginLeft: -5, height: 25, width: 25}}><FullscreenExit style={{color: '#B0B0B0'}}/></div>                
+          <div style={{color: '#B0B0B0', fontSize: 18}}>Click To Close Discussion</div>
       </div>
-      <Box data={data}></Box>
-      <form className="discussion-textbox">
+      
+      <div className="discussion-title">
+        <div style={{marginBottom:"20px"}}>{question}</div>
+        {/* <InputTitle type="text"></InputTitle> */}
+      </div>
+      <div className="discussion-body">
+        {answers.map((item) => <Answer item={item} />)}
+      </div>
+      <div className="discussion-textbox">
         <textarea className="discussion-textarea"></textarea>
-        <button className="discussion-submit"type="submit">submit</button>
-      </form>
+        <button className="discussion-submit" >submit</button>
+      </div>
     </div>
   );
 }
