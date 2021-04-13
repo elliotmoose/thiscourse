@@ -36,7 +36,8 @@ function createNode(question, username, parentId=null) {
         question,
         username,
         answers: {},
-        parentId
+        parentId,
+        correctAnswerId: null
     }
 }
 
@@ -85,6 +86,18 @@ function voteAnswer(isUpVote, answerId, nodeId, roomNodes) {
     }
 }
 
+function markAnswerAsCorrect(answerId, nodeId, roomNodes) {
+    if(roomNodes[nodeId] === undefined) {
+        throw `invalid node: not found ${nodeId}`;
+    }
+
+    if(roomNodes[nodeId].answers[answerId] === undefined) {
+        throw `invalid answer: not found ${answerId}`;
+    }
+
+    roomNodes[nodeId].correctAnswerId = answerId;
+}
+
 //------------------------------------------------------------------------------------------------
 // SERVER REST API
 //------------------------------------------------------------------------------------------------
@@ -111,15 +124,20 @@ app.post('/api/create-session', (req, res) => {
         let lastNodeId = root.id;
 
         for(let i=0;i<2;i++) {
-            let child1 = createNode(`test question: ${i}`, username, lastNodeId);
-            let child2 = createNode(`test question: ${i}`, username, lastNodeId);
+            let child1 = createNode(`test question: level ${i} child 1`, username, lastNodeId);
+            let child2 = createNode(`test question: level ${i} child 2`, username, lastNodeId);
             insertNode(child1, lastNodeId, roomNodes);
             insertNode(child2, lastNodeId, roomNodes);
 
             for(let j=0; j<10; j++) {
-                let answer = createAnswer(`test answer ${j}`, username);
-                insertAnswer(answer, child1.id, roomNodes);
-                insertAnswer(answer, child2.id, roomNodes);
+                let answer1 = createAnswer(`test answer ${i},${j}, child 1`, username);
+                insertAnswer(answer1, child1.id, roomNodes);
+                let answer2 = createAnswer(`test answer ${i},${j}, child 2`, username);
+                insertAnswer(answer2, child2.id, roomNodes);
+
+                if(i == 1 && j == 6) {
+                    markAnswerAsCorrect(answer2.id, child2.id, roomNodes);
+                }
             }
 
             // console.log(child1)
@@ -203,9 +221,22 @@ io.on('connection', (socket) => {
         let roomNodes = rooms[roomId].nodes
         try {
             voteAnswer(up, answerId, nodeId, roomNodes);
+            socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {
             console.log(error);
         }
+    })
+    
+    socket.on('mark-answer', (data) => {
+        let { nodeId, answerId, roomId } = data;
+        let roomNodes = rooms[roomId].nodes
+        try {
+            markAnswerAsCorrect(answerId, nodeId, roomNodes);
+            socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+        } catch (error) {
+            console.log(error);
+        }
+
     })
 });
 

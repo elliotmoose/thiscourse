@@ -145,18 +145,23 @@
 }
 
 .discussion-box{
+  position: relative;
   display: flex;
   flex-direction: column;
   max-width: 300px;
   min-width: 300px;
-  border: 3px solid #8A99E7;
   border-radius: 9px;
+  border: 3px solid #8A99E7;
   padding: 24px;
   padding-bottom: 15px;
   margin: 20px 15px 20px 0px;
-  justify-content: space-between;
-  
+  justify-content: space-between;  
 }
+
+.correct-answer-box {
+  border: 3px solid #87DEBF;
+}
+
 .box-content{
   align-self: flex-start;
   margin-bottom: 12px;
@@ -176,29 +181,40 @@
 }
 
 .discussion-textbox{
-  width: 100%;
+  /* width: 100%; */
   display: flex;
   justify-content: space-between;
   /* position: fixed; */
-  left: 11vw;
-  bottom: 10vw;
+  /* left: 11vw; */
+  /* bottom: 10vw; */
+  padding: 4px;
+  
 }
 .discussion-textarea{
-  width: 80%;
+  flex: 1;
   font-family: "Helvetica Neue";
   font-weight: 500;
-  padding: 8px;
   font-size: 18px;
+  height: 60px;
   resize: none;
 }
 .discussion-submit{
-  width: 15%;
+  width: 100px;
+  margin-left: 14px;
   font-weight: bold;
   font-size: 24px;
   border: 3px solid #8A99E7;
   border-radius: 9px;
   background-color: white;
-  color:#4D4D4D
+  color:#8A99E7;
+  text-align: center;
+  padding: 14px 0px 0px 0px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.discussion-submit:hover {
+  transform: scale(1.03);
 }
 
 .thumb {

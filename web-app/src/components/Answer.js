@@ -1,9 +1,24 @@
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import ThumbDownIcon from '@material-ui/icons/ThumbDown';
+import API from '../controllers/api';
+import { useParams } from 'react-router';
+import { Check } from '@material-ui/icons';
+import Button from './Button';
 
 export default function Answer(props) {
-    let { item } = props;
-    return <div className = "discussion-box">
+    let { nodeId, item, isAnswer } = props;
+    let { sessionId } = useParams();
+    let isHost = API.getIsHost(sessionId);
+    
+    function markAsCorrectAnswer() {
+        let answerId = item.id;
+        API.markAsCorrectAnswer(answerId, nodeId, sessionId);
+    }
+
+    return <div className = {`discussion-box ${isAnswer &&  'correct-answer-box'}`}>
+    {isHost && <Button onClick={markAsCorrectAnswer} style={{position: 'absolute', top: 5, right: 5, borderRadius: 25, padding: 6}}>
+        <Check style={{height: 25, width: 25, color: isAnswer ? '#87DEBF' : 'gray'}}/>
+    </Button>}
     <div className ="box-content">"{item.content}"</div>
     <div className ="box-name">- {item.username}</div>
     <div className ="box-vote">

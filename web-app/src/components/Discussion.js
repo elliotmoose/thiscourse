@@ -20,9 +20,10 @@ function Discussion(props) {
       let nodeData = API.getNodeData()[questionNodeId];
       setNode(nodeData);
     }
-    // API.apiEventEmitter.on('nodes-update', (data)=>{
-      
-    // });
+    API.apiEventEmitter.on('nodes-update', (data)=>{
+      let nodeData = data[questionNodeId];
+      setNode(nodeData);
+    });
   },[])
 
 
@@ -72,11 +73,14 @@ function Discussion(props) {
         {/* <InputTitle type="text"></InputTitle> */}
       </div>
       <div className="discussion-body">
-        {answers.map((item) => <Answer item={item} />)}
+        {answers.map((item) => {
+          let isAnswer = (item.id == node.correctAnswerId && item.id !== undefined)
+          return <Answer nodeId={node.id} item={item} isAnswer={isAnswer}/>;
+        })}
       </div>
       <div className="discussion-textbox">
         <textarea className="discussion-textarea"></textarea>
-        <button className="discussion-submit" >submit</button>
+        <div className="discussion-submit" >submit</div>
       </div>
     </div>
   );
