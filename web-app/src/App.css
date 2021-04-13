@@ -186,8 +186,10 @@
 .discussion-textarea{
   width: 80%;
   font-family: "Helvetica Neue";
-  font-weight: bold;
-  font-size: 24px;
+  font-weight: 500;
+  padding: 8px;
+  font-size: 18px;
+  resize: none;
 }
 .discussion-submit{
   width: 15%;
