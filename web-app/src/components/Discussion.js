@@ -64,28 +64,11 @@ function Discussion(props) {
   }
 
   async function submitAnswer() {
-    let username = User.getUsername();
-    if(!username) {
-      let attempted = false;
-      let registeredUsername;
-      while(!User.getUsername()) {
-        let input = prompt(attempted ? 'Username Taken! Enter another username:' : 'Please enter a username');
-        if(!input) {
-          break;
-        }
-
-        let responseusername = await API.registerUser(input, sessionId);
-        if(responseusername) {
-          registeredUsername = responseusername;
-        }
-        attempted = true;
-      }            
+    let success = await User.registerIfNeeded(sessionId);
+    if(success) {
+      API.addAnswer(User.getUsername(), textAreaRef.current.value, node.id, sessionId);
+      textAreaRef.current.value = "";
     }
-    
-    username = User.getUsername();
-    console.log(username)
-    API.addAnswer(username, textAreaRef.current.value, node.id, sessionId);
-    textAreaRef.current.value = "";
   }
   
   return (

@@ -86,6 +86,15 @@ function addAnswer(username, answerContent, nodeId, roomId) {
     clientSocket.emit('answer', { answer: { username, content: answerContent}, nodeId, roomId});    
 }
 
+function voteAnswer(isUpVote, username, answerId, nodeId, roomId) {
+    if(clientSocket === undefined) {
+        console.error('No socket found: could not connect');
+        return {};
+    }   
+    
+    clientSocket.emit('vote-answer', { up: isUpVote, username, answerId, nodeId, roomId });    
+}
+
 async function registerUser(username, roomId) {
     let res = await fetch(`${SERVER_DOMAIN}/api/register-user`, {
         method: 'POST',
@@ -95,11 +104,10 @@ async function registerUser(username, roomId) {
 
     let response = await res.json();
     if(response.username) {
-        User.setUsername(response.username);
         return response.username;
     }
 
 }
 
-const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser };
+const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, voteAnswer};
 export default API;
