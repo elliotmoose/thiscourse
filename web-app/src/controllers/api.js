@@ -1,3 +1,5 @@
+import User from './user';
+
 const ioclient = require('socket.io-client');
 
 const SERVER_DOMAIN = 'http://localhost:9000';
@@ -33,6 +35,7 @@ function socketConnect() {
     return new Promise((resolve, reject) => {
         clientSocket = new ioclient(`${SERVER_DOMAIN}`);
         clientSocket.on('connect', resolve);
+        clientSocket.on('error', (data)=>alert(data));
         clientSocket.on('nodes-update', (data) => {
             if(!data || !data.nodes) {
                 console.log('updated with null');
@@ -83,5 +86,20 @@ function addAnswer(username, answerContent, nodeId, roomId) {
     clientSocket.emit('answer', { answer: { username, content: answerContent}, nodeId, roomId});    
 }
 
-const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer };
+async function registerUser(username, roomId) {
+    let res = await fetch(`${SERVER_DOMAIN}/api/register-user`, {
+        method: 'POST',
+        body: JSON.stringify({ username, roomId }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    let response = await res.json();
+    if(response.username) {
+        User.setUsername(response.username);
+        return response.username;
+    }
+
+}
+
+const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser };
 export default API;

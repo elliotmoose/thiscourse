@@ -43,12 +43,13 @@ const Main = () => {
 				var level_width = level.reduce((a,b)=>a+b.width,0)
 				for (var i = 0; i < level.length; i++){
 					if(i<level.length-1){
-						node_branches.push(<th style={{width:`${level[i].width*65}em`}} className = "tree-bot"></th>);
+						node_branches.push(<th key={`${i}`} style={{width:`${level[i].width*65}em`}} className = "tree-bot"></th>);
 					}
-					nodes.push(<QuestionNode item={level[i]}/>)
+					nodes.push(<QuestionNode key={`${i}node`} item={level[i]}/>)
 			    }
-				return <div><table className="tree" style={{width: `${(level_width-1)*branch_width}em`}} >
-				  <tr >
+				return <div key={`${index}`}><table className="tree" style={{width: `${(level_width-1)*branch_width}em`}} >
+				 <tbody>
+				 <tr >
 				  	<th className = "tree-top"></th>
 				  </tr>
 				  <tr>
@@ -56,11 +57,14 @@ const Main = () => {
 				    <th className = "tree-top"></th>
 				  </tr>
 				  {/*<QuestionNode item={node}/>*/}
+				 </tbody>
 				</table>
 				<table style={{width: `${(level_width)*branch_width}em`}} >
-				  <tr>
-				    {nodes}
-				  </tr>
+				  <tbody>
+					<tr>
+						{nodes}
+					</tr>
+				  </tbody>
 				</table>
 				</div>
 			}

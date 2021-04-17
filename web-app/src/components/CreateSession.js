@@ -1,6 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import API from '../controllers/api';
+import User from '../controllers/user';
  
 const CreateSession = () => {
 	let nameTextInput = React.createRef();
@@ -14,6 +15,7 @@ const CreateSession = () => {
 		let discourse = discourseTextInput.current.value;
 		let restart = restartTextInput.current.value;
 		let { roomId, secret } = await API.createSession(username, discourse);
+		User.setUsername(username);
 		await API.socketConnect();
 		history.push(`/session/${roomId}/`);							
 	}

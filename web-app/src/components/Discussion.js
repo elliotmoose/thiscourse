@@ -3,14 +3,16 @@ import '../App.css';
 import Answer from './Answer';
 import { useHistory, useParams } from 'react-router';
 import API from '../controllers/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FullscreenExit } from '@material-ui/icons';
+import User from '../controllers/user';
 
 function Discussion(props) {
   const { sessionId, questionNodeId } = useParams();
   
   const history = useHistory()
   let [node, setNode] = useState(undefined);
+  let textAreaRef = useRef();
 
   useEffect(()=>{
     if(!API.getNodeData()) {
@@ -60,6 +62,31 @@ function Discussion(props) {
   function exitDiscussion() {
     history.goBack();
   }
+
+  async function submitAnswer() {
+    let username = User.getUsername();
+    if(!username) {
+      let attempted = false;
+      let registeredUsername;
+      while(!User.getUsername()) {
+        let input = prompt(attempted ? 'Username Taken! Enter another username:' : 'Please enter a username');
+        if(!input) {
+          break;
+        }
+
+        let responseusername = await API.registerUser(input, sessionId);
+        if(responseusername) {
+          registeredUsername = responseusername;
+        }
+        attempted = true;
+      }            
+    }
+    
+    username = User.getUsername();
+    console.log(username)
+    API.addAnswer(username, textAreaRef.current.value, node.id, sessionId);
+    textAreaRef.current.value = "";
+  }
   
   return (
     <div className="discussion">
@@ -79,8 +106,8 @@ function Discussion(props) {
         })}
       </div>
       <div className="discussion-textbox">
-        <textarea className="discussion-textarea"></textarea>
-        <div className="discussion-submit" >submit</div>
+        <textarea className="discussion-textarea" ref={textAreaRef}></textarea>
+        <div className="discussion-submit" onClick={submitAnswer}>submit</div>
       </div>
     </div>
   );
