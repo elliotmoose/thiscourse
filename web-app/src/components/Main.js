@@ -1,7 +1,9 @@
+import { Add } from '@material-ui/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import API from '../controllers/api';
 import Tree from '../controllers/tree';
+import User from '../controllers/user';
 
 import QuestionNode from './QuestionNode'
 
@@ -25,6 +27,14 @@ const Main = () => {
 
     var question = nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0] && nodesByLevel[0][0].question || 'loading question...';
 
+	function addNode() {
+		
+        let question = prompt('Enter a question:');
+        if(question) {
+            API.addNode(User.getUsername(), question, nodesByLevel[0][0].id, sessionId);
+        }
+    }
+
     console.log(nodesByLevel)
 
 	const branch_width = 25
@@ -33,6 +43,7 @@ const Main = () => {
     return (
 		<div className="Main">
 		<p style={{fontWeight: 800, fontSize: 24}}>{question}</p>
+		<div onClick={addNode} style={{width: 20, height: 20, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 10, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></div>
 
 		{/*Draw tree here*/}
 

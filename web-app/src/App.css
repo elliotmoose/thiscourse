@@ -84,6 +84,8 @@
   padding: 8px;
 }*/
 .tree-node {
+  display: 'flex';
+  justify-content: flex-end;
   /*text-align: left;*/
   /*height: 4em;*/
   /*width: 25em;*/
