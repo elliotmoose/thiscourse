@@ -4,8 +4,10 @@ import API from "../controllers/api";
 import User from "../controllers/user";
 
 export default function QuestionNode(props) {
-	let node = props.item
-	var width = node.width*65
+	let node = props.item;
+    console.log(node.width);
+	var width = node.width*65;
+
 
     let history = useHistory();
     let { sessionId } = useParams();

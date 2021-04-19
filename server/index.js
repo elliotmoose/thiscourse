@@ -183,15 +183,15 @@ io.on('connection', (socket) => {
             insertNode(node, parentId, roomNodes);
 
             //test
-            let lastNodeId = node.id;
-            for(let i=0;i<2;i++) {
-                let child1 = createNode(question, username, lastNodeId);
-                let child2 = createNode(question, username, lastNodeId);
-                insertNode(child1, lastNodeId, roomNodes);
-                insertNode(child2, lastNodeId, roomNodes);
-                // console.log(child1)
-                lastNodeId = child1.id;
-            }
+            // let lastNodeId = node.id;
+            // for(let i=0;i<2;i++) {
+            //     let child1 = createNode(question, username, lastNodeId);
+            //     let child2 = createNode(question, username, lastNodeId);
+            //     insertNode(child1, lastNodeId, roomNodes);
+            //     insertNode(child2, lastNodeId, roomNodes);
+            //     // console.log(child1)
+            //     lastNodeId = child1.id;
+            // }
 
             socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {

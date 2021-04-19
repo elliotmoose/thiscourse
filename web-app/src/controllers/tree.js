@@ -35,6 +35,57 @@ function recurseWidths(node) {
     return nodeWidth;
 }
 
+function dfs(visited, rootNode, arr, l, i){
+    let level = l + 1;
+    let idx = i;
+    let node = rootNode;
+    let out_arr = arr; 
+    // console.log(level,idx);
+    // console.log(out_arr);
+
+
+    if(!visited.has(node.id)){
+        // console.log(visited);
+        try{
+            out_arr[level].push(idx);
+        }
+        catch(err){
+            out_arr.push([idx]);
+        }
+
+        // if(idx==1){
+        //     out_arr.push([1]);
+        // }else{
+        //     out_arr[level].push(idx);
+        // }
+
+        visited.add(node.id);
+        // let children = node.children;
+        // console.log(children);
+
+        // console.log(node.children.length);
+        if(node.children){
+            for(var ii = 0; ii < node.children.length; ii++){
+                // console.log( node.children[ii]);
+                let out_idx = dfs(visited, node.children[ii], out_arr,level, idx);
+
+                // level -= 1;
+                if(ii<node.children.length-1){
+                    idx = idx+out_idx;
+                }
+            }
+            return idx;
+        }
+        else{
+            return 1;
+        }
+        // console.log(idx);
+        
+    }
+    
+}
+
+
 
 function byLevel(rootNode) {
     let levels = []
@@ -59,5 +110,5 @@ function byLevel(rootNode) {
     console.log(levels);
     return levels;
 }
-const Tree = { buildTree, byLevel };
+const Tree = { buildTree, byLevel, dfs};
 export default Tree;
