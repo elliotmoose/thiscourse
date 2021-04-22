@@ -47,38 +47,34 @@ function dfs(visited, rootNode, arr, l, i){
     if(!visited.has(node.id)){
         // console.log(visited);
         try{
+            // try push to level
             out_arr[level].push(idx);
         }
         catch(err){
+            // If level does not exist, push to new level
             out_arr.push([idx]);
         }
 
-        // if(idx==1){
-        //     out_arr.push([1]);
-        // }else{
-        //     out_arr[level].push(idx);
-        // }
-
+        // Add to visited node
+        console.log(`at level ${level} node ${idx}`)
         visited.add(node.id);
-        // let children = node.children;
-        // console.log(children);
-
-        // console.log(node.children.length);
         if(node.children){
+            // If node has children, loop through children
             for(var ii = 0; ii < node.children.length; ii++){
                 // console.log( node.children[ii]);
                 let out_idx = dfs(visited, node.children[ii], out_arr,level, idx);
+                // idx = out_idx+1;
+                // idx += 1;
 
-                // level -= 1;
+                console.log(`Backtrack! out_idx: ${out_idx} idx: ${idx}`)
                 if(ii<node.children.length-1){
-                    idx = idx+out_idx;
+                    idx = 1+out_idx;
+                }else{
+                    idx = out_idx;
                 }
             }
-            return idx;
         }
-        else{
-            return 1;
-        }
+        return idx;
         // console.log(idx);
         
     }
@@ -89,9 +85,14 @@ function dfs(visited, rootNode, arr, l, i){
 
 function byLevel(rootNode) {
     let levels = []
+    let out_arr = [];
+    let visited = new Set();
+
+    dfs(visited, rootNode, out_arr, -1, 1);
 
     let node = rootNode;
     let queue = [rootNode];
+    console.log(out_arr);
     while(queue.length != 0) {
         let tempQueue = [] 
         for(let node of queue) {
@@ -107,7 +108,14 @@ function byLevel(rootNode) {
         queue = tempQueue;
     }
 
-    console.log(levels);
+    for(var i=0; i< levels.length; i++){
+        for(var ii=0; ii< levels[i].length; ii++){
+            levels[i][ii].width = out_arr[i][ii];
+        }
+
+    }
+
+    // console.log(levels);
     return levels;
 }
 const Tree = { buildTree, byLevel, dfs};

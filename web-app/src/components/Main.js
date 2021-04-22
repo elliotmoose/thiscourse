@@ -12,23 +12,22 @@ const Main = () => {
     
     let [rootNode, setRootNode] = useState({});
     let [nodesByLevel, setNodesByLevel] = useState([]);
+    // let [treeProp, setTreeProp] = useState([]);
 
-    let [outArr, setOutArr] = useState([]);
+    // let [outArr, setOutArr] = useState([]);
     
     useEffect(()=>{
         API.apiEventEmitter.on('nodes-update', (data)=>{
             let treeRoot = Tree.buildTree(data);
             setRootNode(treeRoot);
             
+      //       let out_arr = [];
+		    // let visited = new Set();
+
+		    // Tree.dfs(visited, treeRoot, out_arr, -1, 1);
+            
             let _nodesByLevel = Tree.byLevel(treeRoot);
             setNodesByLevel(_nodesByLevel);
-
-            let out_arr = [];
-		    let visited = new Set();
-
-		    Tree.dfs(visited, treeRoot, out_arr, -1, 1);
-		    setOutArr(out_arr);
-
         });
         
         API.requestNodeData(sessionId);
@@ -43,22 +42,9 @@ const Main = () => {
             API.addNode(User.getUsername(), question, nodesByLevel[0][0].id, sessionId);
         }
     }
-    console.log(rootNode);
 
-
-
-
-    // let out_arr = [];
-    // let visited = new Set();
-
-
-    // Tree.dfs(visited, rootNode, out_arr, -1, 1);
-
-    console.log(nodesByLevel)
-    console.log(outArr)
-
-	const branch_width = 25
-	var number_child = 3
+	const branch_width = 25;
+	// var prev_level = nodesByLevel[0];
 
     return (
 		<div className="Main">
@@ -73,73 +59,55 @@ const Main = () => {
 				var node_branches_top = [];
 				var nodes = [];
 				var parent;
-				var level_width = level.reduce((a,b)=>a+b.width,0);
-				console.log(level_width);
+				{/*var level_width = level.reduce((a,b)=>a+b.width,0);*/}
+				var dfs_level = level.map(x=>x.width)
+				var level_width = Math.max(...dfs_level);
+				var draw_roof = false;
 
 
-				for (var i = 0; i < level.length; i++){
-					{/*if(i<level.length-1){
-						node_branches_bot.push(<th key={`${i}`} style={{width:`${level[i].width*65}em`}} className = "tree-bot"></th>);
-					}*/}
+				var ii = 0;
+				for (var i = 0; i < level_width; i++){
+					if(dfs_level.includes(i+1)){
+						nodes.push(<QuestionNode key={`${ii}node`} item={level[ii]}/>);
 
-
-					nodes.push(<QuestionNode key={`${i}node`} item={level[i]}/>)
-
-
-					if(level[i].parentId!=parent){
-						parent = level[i].parentId;
-						node_branches_top.push(<th className = "tree-top"></th>);
-						if(i>0){
-							node_branches_bot.push(<th key={`${i}`} style={{width:`${level[i-1].width*65}em`}} className = "tree-bot-hide"></th>);
+						if(level[ii].parentId!=parent){
+							parent = level[ii].parentId;
+							node_branches_top.push(<th className = "tree-top"></th>);
+						}else{
+							node_branches_top.push(<th className = "tree-top-hide"></th>);
 						}
 
+						if(!level[ii+1] || level[ii+1].parentId != level[ii].parentId ){
+							node_branches_bot.push(<th key={`${i}`} style={{width:`${branch_width}em`}} className = "tree-bot-single"></th>); 
+							draw_roof = false;
+
+						}else{
+								node_branches_bot.push(<th key={`${i}`} style={{width:`${branch_width}em`}} className = "tree-bot-l"></th>);
+							draw_roof = true;
+
+						}
+						ii +=1;
 					}else{
 						node_branches_top.push(<th className = "tree-top-hide"></th>);
-						if(i>0){
-							node_branches_bot.push(<th key={`${i}`} style={{width:`${level[i-1].width*65}em`}} className = "tree-bot"></th>);
+						if (draw_roof){
+							node_branches_bot.push(<th key={`${i}`} style={{width:`${branch_width}em`}} className = "tree-bot-roof"></th>);
+						}else{
+							node_branches_bot.push(<th key={`${i}`} style={{width:`${branch_width}em`}} className = "tree-bot-hide"></th>);
 						}
+						nodes.push(<th style={{width:`${branch_width}em`}} className="tree-node"></th>);
 					}
-
-					if(level[i].parentId!=parent){
-
-					}
-
-					{/*if(i==1){
-						node_branches_top.push(<th className = "tree-top"></th>);
-					}else if(i>1){
-						console.log(level[i]);
-						for(let child of level[i]){
-							if(child.parentId != parent){
-								parent = child.parentId;
-								node_branches_top.push(<th className = "tree-top"></th>);
-							}else{
-								node_branches_top.push(<th className = "tree-top-hide"></th>);
-							}
-						}
-					}*/}
-
 			    }
 
-			    {/*for (var i = 0; i < level.length; i++){
-					if(i<level.length-1){
-						node_branches_bot.push(<th key={`${i}`} style={{width:`${level[i].width*65}em`}} className = "tree-bot"></th>);
-					}
-					nodes.push(<QuestionNode key={`${i}node`} item={level[i]}/>)
-			    }*/}
+			    
 
-
-
-				return <div key={`${index}`}><table className="tree" style={{width: `${(level_width-1)*branch_width}em`}} >
+				return <div key={`${index}`}><table className="tree" style={{width: `${(level_width)*branch_width}em`}} >
 				 <tbody>
 				 <tr >
 				 	{node_branches_top}
-				  	{/*<th className = "tree-top"></th>*/}
-				  	{/*<th className = "tree-top"></th>*/}
 				 </tr>
 				 <tr>
 				    {node_branches_bot}
-				    <th className = "tree-top"></th>
-				 </tr>
+				</tr>
 				  {/*<QuestionNode item={node}/>*/}
 				 </tbody>
 				</table>
