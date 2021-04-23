@@ -25,8 +25,8 @@ function createAnswer(content, username) {
         id: uuid.v4(),
         username,
         content,
-        thumbsUp: 0,
-        thumbsDown: 0,
+        thumbsUp: [],
+        thumbsDown: [],
         isAnswer: false
     }
 }
@@ -45,7 +45,8 @@ function createRoom(root) {
     return {
         nodes: {
             [root.id]: root
-        }
+        },
+        users: {}
     }
 }
 
@@ -65,11 +66,18 @@ function insertAnswer(answer, nodeId, roomNodes) {
     if(roomNodes[nodeId] === undefined) {
         throw `invalid node: not found ${nodeId}`;
     }
+
+    // throw "thanks for your contribution"
+    // let hasAnswered = Object.values(roomNodes[nodeId].answers).filter(e=>e.username=answer.username).length == 0;
+
+    // if(hasAnswered) {
+    //     throw "Already answered!"
+    // }
     
     roomNodes[nodeId].answers[answer.id] = answer;
 }
 
-function voteAnswer(isUpVote, answerId, nodeId, roomNodes) {
+function voteAnswer(isUpVote, username, answerId, nodeId, roomNodes) {
     if(roomNodes[nodeId] === undefined) {
         throw `invalid node: not found ${nodeId}`;
     }
@@ -78,11 +86,23 @@ function voteAnswer(isUpVote, answerId, nodeId, roomNodes) {
         throw `invalid answer: not found ${answerId}`;
     }
 
+    let answer = roomNodes[nodeId].answers[answerId];
+
+    let userPrevVoteIndex = answer.thumbsUp.indexOf(username);
+    if(userPrevVoteIndex != -1) {
+        answer.thumbsUp.splice(userPrevVoteIndex, 1);
+    }
+
+    userPrevVoteIndex = answer.thumbsDown.indexOf(username);
+    if(userPrevVoteIndex != -1) {
+        answer.thumbsDown.splice(userPrevVoteIndex, 1);
+    }
+
     if (isUpVote) {
-        roomNodes[nodeId].answers[answerId].thumbsUp += 1
+        answer.thumbsUp.push(username);        
     } 
     else {
-        roomNodes[nodeId].answers[answerId].thumbsDown += 1
+        answer.thumbsDown.push(username);     
     }
 }
 
@@ -150,6 +170,25 @@ app.post('/api/create-session', (req, res) => {
     }
 });
 
+app.post('/api/register-user', (req,res)=>{
+    let { roomId, username } = req.body;
+
+    if(!rooms[roomId]) {
+        console.log(`* server: Could not find room id: ${roomId}`);
+        return;
+    }
+
+    let room = rooms[roomId];
+    if(room.users[username]) {
+        res.status(400).send({error: 'username taken'});
+    }
+    else {
+        room.users[username] = true;
+        res.status(200).send({username});
+        console.log('registered user!')
+    }
+});
+
 
 //------------------------------------------------------------------------------------------------
 // SERVER SOCKET IO
@@ -157,13 +196,16 @@ app.post('/api/create-session', (req, res) => {
 io.on('connection', (socket) => {
     console.log('* server: user connected');
 
+
+
+
     //--------------------------------
     // GET NODES
     //--------------------------------
     socket.on('get-nodes', (data) => {
         console.log(`* server: data retrieval request received`);
         let { roomId } = data;
-        socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
+        io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
     })
 
     //--------------------------------
@@ -183,17 +225,17 @@ io.on('connection', (socket) => {
             insertNode(node, parentId, roomNodes);
 
             //test
-            let lastNodeId = node.id;
-            for(let i=0;i<2;i++) {
-                let child1 = createNode(question, username, lastNodeId);
-                let child2 = createNode(question, username, lastNodeId);
-                insertNode(child1, lastNodeId, roomNodes);
-                insertNode(child2, lastNodeId, roomNodes);
-                // console.log(child1)
-                lastNodeId = child1.id;
-            }
+            // let lastNodeId = node.id;
+            // for(let i=0;i<2;i++) {
+            //     let child1 = createNode(question, username, lastNodeId);
+            //     let child2 = createNode(question, username, lastNodeId);
+            //     insertNode(child1, lastNodeId, roomNodes);
+            //     insertNode(child2, lastNodeId, roomNodes);
+            //     // console.log(child1)
+            //     lastNodeId = child1.id;
+            // }
 
-            socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {
             console.log(error);
         }
@@ -204,24 +246,37 @@ io.on('connection', (socket) => {
     //--------------------------------
     socket.on('answer', (data) => {
         let { answer: { username, content} , nodeId, roomId } = data;
+        
+        if(!rooms[roomId]) {
+            console.log(`* server: Could not find room id: ${roomId}`);
+            return;
+        }
+
         console.log(`* server: answer request received: answer: ${content} by user: ${username} parentNode: ${nodeId} `);
         let roomNodes = rooms[roomId].nodes
         
         try {
             let answer = createAnswer(content, username);
             insertAnswer(answer, nodeId, roomNodes);
-            socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {
+            socket.emit('error', error);
             console.log(error);
         }
     })
 
     socket.on('vote-answer', (data) => {
-        let { nodeId, answerId, roomId, up } = data;
+        let { username, nodeId, answerId, roomId, up } = data;
+        if(!rooms[roomId]) {
+            console.log(`* server: Could not find room id: ${roomId}`);
+            return;
+        }
+
         let roomNodes = rooms[roomId].nodes
+        
         try {
-            voteAnswer(up, answerId, nodeId, roomNodes);
-            socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            voteAnswer(up, username, answerId, nodeId, roomNodes);
+            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {
             console.log(error);
         }
@@ -229,10 +284,15 @@ io.on('connection', (socket) => {
     
     socket.on('mark-answer', (data) => {
         let { nodeId, answerId, roomId } = data;
+        if(!rooms[roomId]) {
+            console.log(`* server: Could not find room id: ${roomId}`);
+            return;
+        }
+
         let roomNodes = rooms[roomId].nodes
         try {
             markAnswerAsCorrect(answerId, nodeId, roomNodes);
-            socket.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
         } catch (error) {
             console.log(error);
         }
