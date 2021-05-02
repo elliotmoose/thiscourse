@@ -4,8 +4,9 @@ import API from "../controllers/api";
 import User from "../controllers/user";
 
 export default function QuestionNode(props) {
-	let node = props.item
-	var width = node.width*65
+	let node = props.item;
+	var width = 1*25;
+
 
     let history = useHistory();
     let { sessionId } = useParams();
@@ -24,7 +25,7 @@ export default function QuestionNode(props) {
     let correctAnswer = node.answers && node.answers[node.correctAnswerId];
 
     return <th style={{width:`${width}em`}} className="tree-node">
-		<div style={{display: 'flex'}}>
+		<div style={{display: 'flex' , marginLeft:`${node.left_offset}em`}}>
             <div className = "tree-node-container">            
                 <p style={{color: '#8A99E7', fontWeight: 800}}>{node.question}</p>
                 <div style={{display: 'flex', marginBottom: 12}}>

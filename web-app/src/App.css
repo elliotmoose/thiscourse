@@ -111,11 +111,41 @@
   height: 4em;
 }
 
-.tree-bot {
+.tree-top-hide {
+  border-left: 0.3em transparent;
+  height: 4em;
+}
+
+
+.tree-bot-l {
   border-left: 0.3em solid #8A99E7;
-  /* height: 4em; */
+   height: 4em; 
   /*width: 65em;*/
   border-top: 0.3em solid #8A99E7;
+  /*border-right: 0.3em solid #8A99E7;*/
+}
+
+.tree-bot-roof {
+  border-left: 0.3em transparent;
+   height: 4em; 
+  /*width: 65em;*/
+  border-top: 0.3em solid #8A99E7;
+  /*border-right: 0.3em solid #8A99E7;*/
+}
+.tree-bot-single {
+  border-left: 0.3em solid #8A99E7;
+   height: 4em; 
+  /*width: 65em;*/
+/*  border-top: 0.3em solid #8A99E7;
+  border-right: 0.3em solid #8A99E7;*/
+}
+
+.tree-bot-hide {
+  border-right: 0.3em transparent;
+  height: 4em; 
+  /*width: 65em;*/
+  border-top: 0.3em transparent;
+  border-left: 0.3em transparent;
 }
 
 .discussion{
