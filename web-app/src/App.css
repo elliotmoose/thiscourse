@@ -208,6 +208,9 @@
   margin-bottom: 12px;
   font-size: medium;
   font-weight: 600;
+  /* max-width: 100%; */
+  word-break: break-all;
+  /* flex-wrap: wrap; */
 }
 .box-name{
   align-self: flex-end;
