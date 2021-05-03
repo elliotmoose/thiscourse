@@ -82,11 +82,14 @@ function Discussion(props) {
         <div style={{marginBottom:"20px"}}>{question}</div>
         {/* <InputTitle type="text"></InputTitle> */}
       </div>
-      <div className="discussion-body">
-        {answers.map((item) => {
-          let isAnswer = (item.id == node.correctAnswerId && item.id !== undefined)
-          return <Answer nodeId={node.id} item={item} isAnswer={isAnswer}/>;
-        })}
+      <div className="discussion-body-container">
+        <div className="discussion-body">
+          {answers.map((item) => {
+            let isAnswer = (item.id == node.correctAnswerId && item.id !== undefined)
+            return <Answer nodeId={node.id} item={item} isAnswer={isAnswer}/>;
+          })}
+        </div>
+        <div style={{flex: 1}}/>
       </div>
       <div className="discussion-textbox">
         <textarea className="discussion-textarea" ref={textAreaRef}></textarea>

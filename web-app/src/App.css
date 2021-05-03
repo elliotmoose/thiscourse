@@ -166,24 +166,31 @@
   margin:0px 0px 40px 0px;
 }
 
+.discussion-body-container{
+  display: flex;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  margin:0px 0px 40px 0px;
+  flex-direction: column;
+  flex: 1;
+}
+
 .discussion-body{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;  
-  overflow-y: scroll;
-  overflow-x: hidden;
-  margin:0px 0px 40px 0px;
-  flex: 1;
+  justify-content: flex-start;  
+  /* flex: 1; */
 }
 
 .discussion-box{
   position: relative;
   display: flex;
   flex-direction: column;
-  /* max-width: 300px;
-  min-width: 300px; */
-  width: 300px;
+  max-width: 300px;
+  min-width: 300px;
+  /* height: 200px; */
+  /* width: 300px; */
   border-radius: 9px;
   border: 3px solid #8A99E7;
   padding: 24px;
