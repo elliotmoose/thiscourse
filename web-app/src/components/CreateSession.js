@@ -25,10 +25,10 @@ const CreateSession = () => {
 			<h2>Create Session</h2>
 			<form>
 			  <label>
-			    <input ref={nameTextInput} className="input-box" type="text" name="name" placeholder="Name" value='Paolo'/>
+			    <input ref={nameTextInput} className="input-box" type="text" name="name" placeholder="Name"/> 
 				<br></br>
 				<br></br>
-			    <input ref={discourseTextInput} className="input-box" type="text" name="discourse" placeholder="Discourse" value='Can Artificial Intelligence Have Consciousness?'/>
+			    <input ref={discourseTextInput} className="input-box" type="text" name="discourse" placeholder="Discourse"/>
 			    <br></br>
 				<br></br>
 				or

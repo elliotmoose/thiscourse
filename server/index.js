@@ -141,28 +141,28 @@ app.post('/api/create-session', (req, res) => {
         let roomNodes = rooms[roomId].nodes;
 
         //test
-        let lastNodeId = root.id;
+        // let lastNodeId = root.id;
 
-        for(let i=0;i<2;i++) {
-            let child1 = createNode(`test question: level ${i} child 1`, username, lastNodeId);
-            let child2 = createNode(`test question: level ${i} child 2`, username, lastNodeId);
-            insertNode(child1, lastNodeId, roomNodes);
-            insertNode(child2, lastNodeId, roomNodes);
+        // for(let i=0;i<2;i++) {
+        //     let child1 = createNode(`test question: level ${i} child 1`, username, lastNodeId);
+        //     let child2 = createNode(`test question: level ${i} child 2`, username, lastNodeId);
+        //     insertNode(child1, lastNodeId, roomNodes);
+        //     insertNode(child2, lastNodeId, roomNodes);
 
-            for(let j=0; j<10; j++) {
-                let answer1 = createAnswer(`test answer ${i},${j}, child 1`, username);
-                insertAnswer(answer1, child1.id, roomNodes);
-                let answer2 = createAnswer(`test answer ${i},${j}, child 2`, username);
-                insertAnswer(answer2, child2.id, roomNodes);
+        //     for(let j=0; j<10; j++) {
+        //         let answer1 = createAnswer(`test answer ${i},${j}, child 1`, username);
+        //         insertAnswer(answer1, child1.id, roomNodes);
+        //         let answer2 = createAnswer(`test answer ${i},${j}, child 2`, username);
+        //         insertAnswer(answer2, child2.id, roomNodes);
 
-                if(i == 1 && j == 6) {
-                    markAnswerAsCorrect(answer2.id, child2.id, roomNodes);
-                }
-            }
+        //         if(i == 1 && j == 6) {
+        //             markAnswerAsCorrect(answer2.id, child2.id, roomNodes);
+        //         }
+        //     }
 
-            // console.log(child1)
-            lastNodeId = child1.id;
-        }
+        //     // console.log(child1)
+        //     lastNodeId = child1.id;
+        // }
 
 
         // res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
@@ -319,40 +319,40 @@ function sleep(time) {
         }, time);
     })    
 }
-setTimeout(async () => {
-    let res = await fetch(`http://localhost:${SERVER_PORT}/api/create-session`, {
-        method: 'POST',
-        body: JSON.stringify({ discourse: 'Can AI Have intelligence?', username: 'Paolo' }),
-        headers: { 'Content-Type': 'application/json' }
-    })
+// setTimeout(async () => {
+//     let res = await fetch(`http://localhost:${SERVER_PORT}/api/create-session`, {
+//         method: 'POST',
+//         body: JSON.stringify({ discourse: 'Can AI Have intelligence?', username: 'Paolo' }),
+//         headers: { 'Content-Type': 'application/json' }
+//     })
 
-    let { roomId, secret } = await res.json();
-    console.log(`= client: USER GOES TO: ${roomId} AND SAVE SECRET: ${secret}`);
-    // let split = roomId.split('/');
-    // let roomId = split[split.length - 1];
+//     let { roomId, secret } = await res.json();
+//     console.log(`= client: USER GOES TO: ${roomId} AND SAVE SECRET: ${secret}`);
+//     // let split = roomId.split('/');
+//     // let roomId = split[split.length - 1];
 
-    clientSocket = new ioclient(`http://localhost:${SERVER_PORT}`);
+//     clientSocket = new ioclient(`http://localhost:${SERVER_PORT}`);
     
-    let nodes = {}
-    //1. get all data
-    clientSocket.on('nodes-update', (data) => {
-        nodes = data.nodes
-        console.log(`= client: data received (${Object.values(data.nodes).length} node(s))`);
-    });
+//     let nodes = {}
+//     //1. get all data
+//     clientSocket.on('nodes-update', (data) => {
+//         nodes = data.nodes
+//         console.log(`= client: data received (${Object.values(data.nodes).length} node(s))`);
+//     });
     
-    //2.
-    clientSocket.emit('get-nodes', { roomId });
+//     //2.
+//     clientSocket.emit('get-nodes', { roomId });
     
-    await sleep(100);
+//     await sleep(100);
     
-    //3. create a test node
-    let rootId = Object.keys(nodes)[0];
-    clientSocket.emit('add-node', { node: { username: 'Elliot', question: 'What is Intelligence?' }, parentId: rootId, roomId});
+//     //3. create a test node
+//     let rootId = Object.keys(nodes)[0];
+//     clientSocket.emit('add-node', { node: { username: 'Elliot', question: 'What is Intelligence?' }, parentId: rootId, roomId});
     
-    await sleep (100)
-    let answerNodeId = Object.keys(nodes)[1];
-    clientSocket.emit('answer', { answer: { username: 'Elliot', content: 'Intelligence is the ability to exhibit smart behaviour' }, nodeId: answerNodeId, roomId});    
+//     await sleep (100)
+//     let answerNodeId = Object.keys(nodes)[1];
+//     clientSocket.emit('answer', { answer: { username: 'Elliot', content: 'Intelligence is the ability to exhibit smart behaviour' }, nodeId: answerNodeId, roomId});    
     
-    await sleep (100)
-    // console.dir(nodes, { depth: null })
-}, 100);
+//     await sleep (100)
+//     // console.dir(nodes, { depth: null })
+// }, 100);

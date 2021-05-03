@@ -29,8 +29,8 @@ export default function QuestionNode(props) {
             <div className = "tree-node-container">            
                 <p style={{color: '#8A99E7', fontWeight: 800}}>{node.question}</p>
                 <div style={{display: 'flex', marginBottom: 12}}>
-                    <div style={{backgroundColor: '#8A99E7', width: 7, borderRadius: 10, marginRight: 12}}/>
-                    <p>{correctAnswer === undefined ? 'discussion in progress...' : `"${correctAnswer.content}"`}</p>                
+                    <div style={{backgroundColor: '#8A99E7', minWidth: 7, maxWidth: 7, borderRadius: 10, marginRight: 12}}/>
+                    <p style={{wordBreak: 'break-all'}}>{correctAnswer === undefined ? 'discussion in progress...' : `"${correctAnswer.content}"`}</p>                
                 </div>
                 {correctAnswer && <div style={{textAlign: 'end'}}>-{correctAnswer.username}</div>}
                 <div onClick={viewDiscussion} style={{display: 'flex', marginBottom: 8, alignItems: 'center', cursor: 'pointer'}}>
