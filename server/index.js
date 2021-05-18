@@ -8,9 +8,20 @@ app.use(cors())
 app.options('*', cors())
 const http = require('http');
 const server = http.createServer(app);
+
+const fs = require('fs');
+let fileString = fs.readFileSync('../web-app/.env').toString()
+let rows = fileString.split('\n')
+let env = {}
+for(let row of rows) {
+    let keyval = row.split('=');
+    env[keyval[0]] = keyval[1];
+}
+
+WEBAPP_DOMAIN = `${env.REACT_APP_SERVER_HOST}:${env.REACT_APP_CLIENT_PORT}`
 const io = require('socket.io')(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: WEBAPP_DOMAIN,
       methods: ["GET", "POST"]
     }
   });
@@ -18,7 +29,7 @@ const uuid = require('uuid');
 const rwords = require('random-words');
 let rooms = {}
 
-const SERVER_PORT = 9000;
+const SERVER_PORT = env.REACT_APP_SERVER_PORT;
 
 function createAnswer(content, username) {
     return {
@@ -122,7 +133,6 @@ function markAnswerAsCorrect(answerId, nodeId, roomNodes) {
 // SERVER REST API
 //------------------------------------------------------------------------------------------------
 
-WEBAPP_DOMAIN = 'localhost:3000'
 app.post('/api/create-session', (req, res) => {
     let { discourse, username } = req.body;
     roomId = uuid.v4();
@@ -301,7 +311,7 @@ io.on('connection', (socket) => {
 });
 
 server.listen(SERVER_PORT, () => {
-    console.log(`listening on *:${SERVER_PORT}`);
+    console.log(`server hosted on ${env.REACT_APP_SERVER_HOST}:${env.REACT_APP_SERVER_PORT} for client port ${env.REACT_APP_CLIENT_PORT}`);
 });
 
 

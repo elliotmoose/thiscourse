@@ -2,7 +2,8 @@ import User from './user';
 
 const ioclient = require('socket.io-client');
 
-const SERVER_DOMAIN = 'http://localhost:9000';
+const SERVER_DOMAIN = `${process.env.REACT_APP_SERVER_HOST}:${process.env.REACT_APP_SERVER_PORT}`;
+console.log("Server: ", SERVER_DOMAIN);
 const EventEmitter = require('events');
 class APIEventEmitter extends EventEmitter {}
 let apiEventEmitter = new APIEventEmitter();
