@@ -132,6 +132,9 @@ function markAnswerAsCorrect(answerId, nodeId, roomNodes) {
 //------------------------------------------------------------------------------------------------
 // SERVER REST API
 //------------------------------------------------------------------------------------------------
+app.get('/', (req,res) => {
+    res.send("=== Thiscourse REST API");
+});
 
 app.post('/api/create-session', (req, res) => {
     let { discourse, username } = req.body;
