@@ -283,3 +283,49 @@
     transform: rotate(360deg);
   }
 }
+
+.sidenav---icon-bar---u1f02 {
+  /* background-color: #9286e9 !important; */
+  background-color: white !important;
+}
+
+.main-logo {
+  margin-top: 0.85em;
+  margin-left: 0.85em;
+  font-size: 1.6rem;
+}
+
+.sidebar-text{
+  /* margin-top: 0.85em; */
+  margin-left: 0.85em;
+  font-size: 1.3em;
+  transition: display 0.5s, visibility 0.5s;
+  color: black;
+}
+
+.addResModal{
+  width: 200%;
+  height: 200%;
+  background-color: rgba(0, 0, 0, 0.479);
+  position: fixed;
+  top: -20%;
+  left: -20%;
+  z-index:9999;
+  overflow: hidden;
+
+}
+
+.addResModalContent{
+  width: 25%;
+  height: 25%;
+  background-color: white;
+  position: absolute;
+  z-index:99999;
+  top: 22.5%;
+  left: 22.5%;
+  color: black;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 2em;
+
+}

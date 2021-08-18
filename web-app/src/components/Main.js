@@ -4,14 +4,27 @@ import { useParams } from 'react-router';
 import API from '../controllers/api';
 import Tree from '../controllers/tree';
 import User from '../controllers/user';
+import Fonts from '../constants/fonts';
+import Colors from '../constants/colors';
 
 import QuestionNode from './QuestionNode'
+
+import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '@trendmicro/react-sidenav';
+
+// Be sure to include styles at some point, probably during your bootstraping
+import '@trendmicro/react-sidenav/dist/react-sidenav.css';
 
 const Main = () => {
     const { sessionId } = useParams();
     
     let [rootNode, setRootNode] = useState({});
     let [nodesByLevel, setNodesByLevel] = useState([]);
+    let [sideBarExpand, setSideBarExpand] = useState(false);
+    let [modalOpen, setModalOpen] = useState(false);
+
+	// let [resource, setResource] = useState({});
+	let resource = {resourceTitle:"", resourceType:"article", resourceURL:""}
+	let [resources, setResources] = useState([{resourceTitle:"Life of Pi", resourceURL:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", resourceType:"book"},{resourceTitle:"HowToWrite", resourceURL:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", resourceType:"video"}]);
     // let [treeProp, setTreeProp] = useState([]);
 
     // let [outArr, setOutArr] = useState([]);
@@ -43,13 +56,138 @@ const Main = () => {
         }
     }
 
+	function addResource() {
+		setModalOpen(!modalOpen);
+    }
+
+	function handleSubmit(){
+		if (resource.resourceTitle && resource.resourceType && resource.resourceURL){
+			var curResList = resources;
+			curResList.push(resource);
+			setResources(curResList);
+			setModalOpen(!modalOpen);
+		}else{
+			alert("One or more fields are empty");
+		}
+
+
+	}
+
+	function handleBack(){
+		setModalOpen(!modalOpen);
+	}
+
+	function handleResClick(){
+		setModalOpen(!modalOpen);
+	}
+
+	function handleChange(event) {
+		// this.setState({value: event.target.value});
+		// var curRes = resource;
+		resource[event.target.name] = event.target.value;
+		// setResource(curRes);
+		console.log(resource);
+	}
+
 	const branch_width = 25;
 	// var prev_level = nodesByLevel[0];
 
     return (
-		<div className="container">
+		<div className="container" style={{marginLeft: `${sideBarExpand ? 9 : 0}em`}}>
+		<div className="addResModal" style={{display: `${modalOpen ? "block" : "none"}`, fontSize:"1.5em"}}>
+			<div className="addResModalContent">
+				<p style={{marginTop: "4.5em"}}>
+					Add Resource
+				</p>
+				<div >
+					<label>
+						Resource Title: &nbsp; &nbsp;
+						<input name="resourceTitle" onChange={handleChange} style={{fontSize: "0.9em"}} />
+					</label>
+					<br/><br/>
+					<label>
+						URL: &nbsp; &nbsp;
+						<input name="resourceURL" onChange={handleChange} style={{fontSize: "0.9em"}} />
+					</label>
+					<br/><br/>
+					Resource type: &nbsp; &nbsp;
+					<select name="resourceType" onChange={handleChange} style={{fontSize: "0.9em"}} >
+						<option selected value="article">Article</option>
+						<option value="video">Video</option>
+						<option value="book">Book</option>
+					</select>
+					<br/><br/>
+					<button onClick={handleSubmit} style={{fontSize: "0.9em"}}>Submit</button> &nbsp; &nbsp;
+					<button onClick={handleBack} style={{fontSize: "0.9em"}}>Back</button>
+				</div>
+			</div>
+		</div>
+		<SideNav  style={{background: "#bdc3c7", maxWidth:"280px"}}
+			onSelect={(selected) => {
+				// Add your code here
+				console.log("EHEHEHEHEEHE");
+			}}
+			onToggle={(selected) => {
+				// Add your code here
+				setSideBarExpand(!sideBarExpand);
+				// if (sideBarExpand){
+				// 	setSideBarExpand(false);
+				// }else{
+				// 	setSideBarExpand(true);
+				// }
+
+			}}
+		>
+			<p className="main-logo" style={{display: `${sideBarExpand ? "inline-block" : "none"}`, ...Fonts.bold , color: Colors.purple }} >Dialektikós</p>
+			<SideNav.Toggle style={{backgroundColor: Colors.purple}}/> 
+			<SideNav.Nav >
+				<p  className="sidebar-text" style={{display: `${sideBarExpand ? "inline-block" : "none"}`, }}>
+					RESOURCES
+				</p>
+				<br/>
+
+				<div onClick={addResource}  className="sidebar-text" style={{marginBottom: "1em",  display: `${sideBarExpand ? "inline-block" : "none"}`, cursor: 'pointer'}}>
+					<Add style={{width: 20, height: 20 , backgroundColor:"white", borderRadius: 10, marginRight:"0.5em"}}/> Add Resrouces
+				</div>
+
+				{resources.map((level, idnex)=>
+					{
+						let background_img = ""
+						switch (level.resourceType) {
+							case "book":
+								background_img= "https://www.publicbooks.org/wp-content/uploads/2017/01/book-e1484158615982-810x327.jpg";
+							  	break;
+							case "article":
+								background_img= "https://images.unsplash.com/photo-1585241936939-be4099591252?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80";
+								break;
+							case "video":
+								background_img= "https://images.unsplash.com/photo-1567443024551-f3e3cc2be870?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80";
+								break;
+							default:
+								background_img= "https://images.unsplash.com/photo-1585241936939-be4099591252?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80";
+						  }
+						return <a  target="_blank" href={level.resourceURL} style={{ textAlign:"center" , width:"100%", height:"7em", backgroundSize: "cover", backgroundImage:`url("${background_img}")`, marginBottom: "1em", display: `${sideBarExpand ? "inline-block" : "none"}`, ...Fonts.bold, cursor: 'pointer'}}>
+							<p   style={{marginBlockStart: 0, marginBlockEnd: 0, lineHeight: "7em", color:"white", background: "rgba(0, 0, 0, 0.479)"}}>
+								{level.resourceTitle}		
+							</p>
+						</a>
+
+					}
+				)}
+
+				
+
+				
+				
+
+			</SideNav.Nav>
+		</SideNav>
+		
 		<p style={{fontWeight: 800, fontSize: 24}}>{question}</p>
+
 		<div onClick={addNode} style={{width: 20, height: 20, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 10, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></div>
+
+
 
 		{/*Draw tree here*/}
 
