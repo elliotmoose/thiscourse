@@ -10,14 +10,15 @@ const http = require('http');
 const server = http.createServer(app);
 const DB = require('./db/dbinit');
 var admin = require("firebase-admin");
-var serviceAccount = require(".thiscourse-e4fb1-firebase-adminsdk-ouh1i-a8116a739b.json");
+var serviceAccount = require("./thiscourse-e4fb1-firebase-adminsdk-ouh1i-a8116a739b.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
+const FieldValue = admin.firestore.FieldValue;
 const firestore = admin.firestore();
-const db = new DB(firestore);
+const db = new DB(firestore, FieldValue);
 
 const fs = require('fs');
 let fileString = fs.readFileSync('../web-app/.env').toString()

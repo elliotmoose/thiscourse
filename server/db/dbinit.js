@@ -1,6 +1,7 @@
  class DB {
-    constructor(firestore) {
+    constructor(firestore, FieldValue) {
         this.firestore = firestore;
+        this.FieldValue = FieldValue;
     }
 
     async initRoom(payload) {
@@ -13,7 +14,13 @@
         console.log("Initializing User");
         let colRef_users = this.firestore.collection("Users");
         let docRef_user = colRef_users.doc(payload.username);
-        await docRef_user.set({roomIds : [payload.roomId]});
+        const doc = await docRef_user.get();
+        if (!doc.exists){
+            await docRef_user.set({roomIds : [payload.roomId]});
+        }
+        else{
+            const updateUser = await docRef_user.update({roomIds : this.FieldValue.arrayUnion(payload.roomId)})
+        }
         
         console.log("INITIALISATION DONE \n")
     }
@@ -26,7 +33,7 @@
             await docRef_user.set({roomIds : [payload.roomId]});
         }
         else{
-            const updateUser = await docRef_user.update({roomIds : admin.firestore.FieldValue.arrayUnion(payload.room_id)})
+            const updateUser = await docRef_user.update({roomIds : this.FieldValue.arrayUnion(payload.roomId)})
         }
     }
 
