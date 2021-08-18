@@ -12,6 +12,8 @@ const Dashboard = () => {
 
 	let history = useHistory()
 
+	let cover_img_url = "";
+
 	//test
 	let session = {
 		question: 'What is life?',
@@ -24,9 +26,15 @@ const Dashboard = () => {
 		e.preventDefault();
 		let username = User.getUsername();
 		let discourse = questionInput.current.value;
+		// TODO: HEY SEAN, can help me change this API create session by adding the cover image url to the room object? THANK YOU! 
+		// so it would be like  API.createSession(username, discourse, cover_img_url); 
 		let { roomId } = await API.createSession(username, discourse);
 		await API.socketConnect(roomId);
 		history.push(`/session/${roomId}/`);									
+	}
+
+	function onCoverImageClicked(){
+		cover_img_url = prompt("Enter image URL");
 	}
 	
 	function onJoinSession() {
@@ -45,6 +53,7 @@ const Dashboard = () => {
 			<div style={{flex: 1}}>
 				<div style={{width: 300, marginLeft: 40}}>
 					<input style={{...Fonts.bold, marginTop: 20, boxSizing: 'border-box',outline: 0, border: 0, borderRadius: 8, backgroundColor: Colors.lightGray, height: 50, width: '100%', padding: 4, paddingLeft: 14, marginBottom: 8}} ref={questionInput} placeholder="Enter a Question"></input>
+					<Button style={{...Fonts.bold, marginTop: 20, backgroundColor: Colors.gray, height: 50, width: '60%', borderRadius: 8, color: 'white'}} onClick={onCoverImageClicked}><div>Cover image</div></Button>
 					<Button style={{...Fonts.bold, marginTop: 20, backgroundColor: Colors.green, height: 50, width: '100%', borderRadius: 8, color: 'white'}} onClick={onStartSession}><div>Start a new Session</div></Button>
 					<div style={{...Fonts.bold, color: Colors.purple, marginTop: 20}}>Restart an old session:</div>
 					{ownedSessions.map((eachSession) => <Button style={{backgroundColor: 'white', marginTop: 20, height: 60, borderRadius: 8, ...Fonts.bold, color: Colors.darkGray}}>{eachSession.question}</Button>)}

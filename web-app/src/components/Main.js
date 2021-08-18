@@ -1,4 +1,4 @@
-import { Add } from '@material-ui/icons';
+import { Edit, Add } from '@material-ui/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import API from '../controllers/api';
@@ -21,13 +21,13 @@ const Main = () => {
     let [nodesByLevel, setNodesByLevel] = useState([]);
     let [sideBarExpand, setSideBarExpand] = useState(false);
     let [modalOpen, setModalOpen] = useState(false);
+// TODO: SAMPLE RESOURCE OBJECT, PLEASE SEAN HELP ME ADD THIS TO THE ROOM FIREBAASE OBJECT THANK YOU#################
+	let resource = {resourceTitle:"", resourceType:"article", resourceURL:""} 									//###
+// ##################################################################################################################
 
-	// let [resource, setResource] = useState({});
-	let resource = {resourceTitle:"", resourceType:"article", resourceURL:""}
 	let [resources, setResources] = useState([{resourceTitle:"Life of Pi", resourceURL:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", resourceType:"book"},{resourceTitle:"HowToWrite", resourceURL:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", resourceType:"video"}]);
-    // let [treeProp, setTreeProp] = useState([]);
-
-    // let [outArr, setOutArr] = useState([]);
+	let [coverImgURL, setCoverImgURL] = useState("https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2017/08/nostalgia_design.jpg");
+	// let coverImgURL = "https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2017/08/nostalgia_design.jpg";
     
     useEffect(()=>{
         API.apiEventEmitter.on('nodes-update', (data)=>{
@@ -81,12 +81,16 @@ const Main = () => {
 		setModalOpen(!modalOpen);
 	}
 
+	function changeCoverURL(){
+		var ans = prompt("Enter Image URL");
+		if(ans){
+			setCoverImgURL(ans);
+		}
+	}
+
 	function handleChange(event) {
-		// this.setState({value: event.target.value});
-		// var curRes = resource;
 		resource[event.target.name] = event.target.value;
-		// setResource(curRes);
-		console.log(resource);
+		// console.log(resource);
 	}
 
 	const branch_width = 25;
@@ -94,6 +98,7 @@ const Main = () => {
 
     return (
 		<div className="container" style={{marginLeft: `${sideBarExpand ? 9 : 0}em`}}>
+
 		<div className="addResModal" style={{display: `${modalOpen ? "block" : "none"}`, fontSize:"1.5em"}}>
 			<div className="addResModalContent">
 				<p style={{marginTop: "4.5em"}}>
@@ -122,7 +127,7 @@ const Main = () => {
 				</div>
 			</div>
 		</div>
-		<SideNav  style={{background: "#bdc3c7", maxWidth:"280px"}}
+		<SideNav  style={{background: "#ecf0f1", maxWidth:"280px", boxShadow:"#80808082 5px 0px 20px"}}
 			onSelect={(selected) => {
 				// Add your code here
 				console.log("EHEHEHEHEEHE");
@@ -183,7 +188,13 @@ const Main = () => {
 			</SideNav.Nav>
 		</SideNav>
 		
-		<p style={{fontWeight: 800, fontSize: 24}}>{question}</p>
+		<div style={{top:0, left:0, position:"absolute", minWidth:"100%", minHeight:"12em", backgroundImage:`url("${coverImgURL}")`, backgroundSize: "cover" ,  backgroundPosition: "center"}}>
+			<button onClick={changeCoverURL} style={{ cursor: 'pointer', position:"absolute", top:"1em", right:"1em", border:0, backgroundColor:"transparent"}}>
+				<Edit style={{ padding:"0.5em"  , width: 30, height: 30 , backgroundColor:"white", borderRadius: "1.3em", marginRight:"0.5em"}}/>
+			</button>
+		</div>
+
+		<p style={{fontWeight: 800, fontSize: 24, marginTop: "7em"}}>{question}</p>
 
 		<div onClick={addNode} style={{width: 20, height: 20, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 10, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></div>
 
