@@ -83,6 +83,11 @@ function createNode(question, username, parentId=null) {
     }
 }
 
+function onDataChange(roomId){
+    const data = JSON.stringify(rooms[roomId]);
+    db.updateRoom({roomId: roomId, roomData: data})
+}
+
 function createRoom(root) {
     return {
         nodes: {
@@ -234,6 +239,19 @@ app.post('/api/register-user', (req,res)=>{
     }
 });
 
+app.post('/api/restart', async (req,res)=>{
+    let { roomId, username } = req.body;
+    const data = await db.getRefreshedRoom({roomId: roomId, username: username })
+    if (data != null){
+        const parsedData = JSON.parse(data);
+        rooms[roomId] = parsedData;
+        res.status(200).send({roomId});
+    }
+    else{
+        res.status(400).send({error: 'room cannot be restarted'});
+    }
+})
+
 
 //------------------------------------------------------------------------------------------------
 // SERVER SOCKET IO
@@ -287,6 +305,7 @@ function initSocketNamespace(roomId) {
                 // }
     
                 io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+                onDataChange(roomId);
             } catch (error) {
                 console.log(error);
             }
@@ -309,7 +328,8 @@ function initSocketNamespace(roomId) {
             try {
                 let answer = createAnswer(content, username);
                 insertAnswer(answer, nodeId, roomNodes);
-                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
+                onDataChange(roomId);
             } catch (error) {
                 socket.emit('error', error);
                 console.log(error);
@@ -327,7 +347,8 @@ function initSocketNamespace(roomId) {
             
             try {
                 voteAnswer(up, username, answerId, nodeId, roomNodes);
-                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
+                onDataChange(roomId);
             } catch (error) {
                 console.log(error);
             }
@@ -343,7 +364,8 @@ function initSocketNamespace(roomId) {
             let roomNodes = rooms[roomId].nodes
             try {
                 markAnswerAsCorrect(answerId, nodeId, roomNodes);
-                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
+                onDataChange(roomId);
             } catch (error) {
                 console.log(error);
             }
