@@ -37,8 +37,8 @@ const Main = () => {
 
 	function addNode() {
 		
-        let question = prompt('Enter a question:' && nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0]);
-        if(question) {
+        let question = prompt('Enter a question:');
+        if(question && nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0]) {
             API.addNode(User.getUsername(), question, nodesByLevel[0][0].id, sessionId);
         }
     }
@@ -47,7 +47,7 @@ const Main = () => {
 	// var prev_level = nodesByLevel[0];
 
     return (
-		<div className="Main">
+		<div className="container">
 		<p style={{fontWeight: 800, fontSize: 24}}>{question}</p>
 		<div onClick={addNode} style={{width: 20, height: 20, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 10, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></div>
 

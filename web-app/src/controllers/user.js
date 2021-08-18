@@ -18,7 +18,6 @@ function isLoggedIn() {
 
 function login(_username, _password) {  
   username = _username;
-  console.log(_username, _password);
   userEventEmitter.emit('login-update');
 }
 
