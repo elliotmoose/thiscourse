@@ -8,18 +8,37 @@ import {
   Link,
   Redirect
 } from "react-router-dom"; 
-import CreateSession from './components/CreateSession';
+import Dashboard from './components/Dashboard';
 import Discussion from './components/Discussion';
 import Main from './components/Main';
+import Login from './components/Login';
+import User from './controllers/user';
 
 
+function AuthRoute({component: Component, ...routeProps}) {
+  return <Route {...routeProps} render={()=>{
+    return User.isLoggedIn() ? <Component/> : <Redirect to="/login"/>
+  }}/>
+}
 class App extends Component {
+
+  state = {
+    isLoggedIn: false
+  }
+  
+  componentDidMount() {
+    User.userEventEmitter.on('login-update', ()=>{
+      this.setState({isLoggedIn: User.isLoggedIn()});
+    });
+  }
+  
   render() {
     return (
-      <div className="container">
+      <div className="fullscreen">
         <Router>
         {/*All our Routes goes here!*/}
-        <Route path="/" exact={true} component={CreateSession} />
+        <AuthRoute component={Dashboard} path="/" exact={true} />
+        <Route path="/login" exact={true} component={Login} />
         <Route path="/session/:sessionId/" exact={true} component={Main} />
         <Route path="/session/:sessionId/discussion/:questionNodeId/" component={Discussion} />
         </Router>

@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import API from '../controllers/api';
 import User from '../controllers/user';
  
-const CreateSession = () => {
+const Dashboard = () => {
 	let nameTextInput = React.createRef();
 	let discourseTextInput = React.createRef();
 	let restartTextInput = React.createRef();
@@ -47,4 +47,4 @@ const CreateSession = () => {
     );
 }
  
-export default CreateSession;
+export default Dashboard;

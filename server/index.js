@@ -240,6 +240,12 @@ app.post('/api/register-user', (req,res)=>{
 //------------------------------------------------------------------------------------------------
 
 function initSocketNamespace(roomId) {
+    console.log(`
+    ==
+    * NEW NAMESPACE CREATED: ${roomId}
+    ==
+    `);
+
     let namespaceId = `/${roomId}`;
     io.of(namespaceId).on('connection', (socket) => {
         console.log('* server: user connected');

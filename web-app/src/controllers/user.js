@@ -1,4 +1,7 @@
 import API from "./api";
+const EventEmitter = require('events');
+class UserEventEmitter extends EventEmitter {}
+let userEventEmitter = new UserEventEmitter();
 
 let username;
 function setUsername(_username) {
@@ -7,6 +10,16 @@ function setUsername(_username) {
 
 function getUsername() {
     return username;
+}
+
+function isLoggedIn() {
+  return username !== undefined;
+}
+
+function login(_username, _password) {  
+  username = _username;
+  console.log(_username, _password);
+  userEventEmitter.emit('login-update');
 }
 
 async function registerIfNeeded(sessionId) {
@@ -31,5 +44,5 @@ async function registerIfNeeded(sessionId) {
       }            
 }
 
-const User = { setUsername, getUsername, registerIfNeeded }
+const User = { login, setUsername, getUsername, registerIfNeeded, isLoggedIn, userEventEmitter }
 export default User;

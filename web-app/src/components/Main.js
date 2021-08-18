@@ -37,7 +37,7 @@ const Main = () => {
 
 	function addNode() {
 		
-        let question = prompt('Enter a question:');
+        let question = prompt('Enter a question:' && nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0]);
         if(question) {
             API.addNode(User.getUsername(), question, nodesByLevel[0][0].id, sessionId);
         }

@@ -16,6 +16,7 @@ export default class Button extends React.Component {
         return <div style={{        
                 display: 'flex', 
                 alignItems: 'center', 
+                justifyContent: 'center', 
                 textAlign: 'center',
                 // padding: '8px 12px', 
                 transform: this.state.hover && 'scale(1.03)',
