@@ -16,6 +16,9 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
+const firestore = admin.firestore();
+const db = new DB(firestore);
+
 const fs = require('fs');
 let fileString = fs.readFileSync('../web-app/.env').toString()
 let rows = fileString.split('\n')
@@ -184,7 +187,7 @@ app.post('/api/create-session', (req, res) => {
         //     lastNodeId = child1.id;
         // }
 
-
+        db.initRoom({roomId: roomId, roomData: '', username:username });
         // res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
         res.json({ roomId, secret });
     }
@@ -205,6 +208,7 @@ app.post('/api/register-user', (req,res)=>{
     else {
         room.users[username] = true;
         res.status(200).send({username});
+        db.addUser({roomId: roomId, username: username });
         console.log('registered user!')
     }
 });
