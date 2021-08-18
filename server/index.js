@@ -63,6 +63,11 @@ function createNode(question, username, parentId=null) {
     }
 }
 
+function onDataChange(roomId){
+    const data = JSON.stringify(rooms[roomId]);
+    db.updateRoom({roomId: roomId, roomData: data})
+}
+
 function createRoom(root) {
     return {
         nodes: {
@@ -214,6 +219,19 @@ app.post('/api/register-user', (req,res)=>{
     }
 });
 
+app.post('/api/restart', async (req,res)=>{
+    let { roomId, username } = req.body;
+    const data = await db.getRefreshedRoom({roomId: roomId, username: username })
+    if (data != null){
+        const parsedData = JSON.parse(data);
+        rooms[roomId] = parsedData;
+        res.status(200).send({roomId});
+    }
+    else{
+        res.status(400).send({error: 'room cannot be restarted'});
+    }
+})
+
 
 //------------------------------------------------------------------------------------------------
 // SERVER SOCKET IO
@@ -248,7 +266,7 @@ io.on('connection', (socket) => {
         let node = createNode(question, username, parentId);
         try {
             insertNode(node, parentId, roomNodes);
-
+            onDataChange(roomId);
             //test
             // let lastNodeId = node.id;
             // for(let i=0;i<2;i++) {
