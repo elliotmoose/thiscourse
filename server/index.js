@@ -1,13 +1,8 @@
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-const cors = require('cors')
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(cors())
-app.options('*', cors())
-const http = require('http');
-const server = http.createServer(app);
+//========================================================================
+//
+//                            INIT FIREBASE                             
+//
+//========================================================================
 const DB = require('./db/dbinit');
 var admin = require("firebase-admin");
 var serviceAccount = require("./thiscourse-e4fb1-firebase-adminsdk-ouh1i-a8116a739b.json");
@@ -20,6 +15,12 @@ const FieldValue = admin.firestore.FieldValue;
 const firestore = admin.firestore();
 const db = new DB(firestore, FieldValue);
 
+
+//========================================================================
+//
+//                            INIT ENV                             
+//
+//========================================================================
 const fs = require('fs');
 let fileString = fs.readFileSync('../web-app/.env').toString()
 let rows = fileString.split('\n')
@@ -30,12 +31,31 @@ for(let row of rows) {
 }
 
 WEBAPP_DOMAIN = `${env.REACT_APP_SERVER_HOST}:${env.REACT_APP_CLIENT_PORT}`
-const io = require('socket.io')(server, {
+
+//========================================================================
+//
+//                            INIT SERVER                             
+//
+//========================================================================
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const cors = require('cors')
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors())
+app.options('*', cors())
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server, {
     cors: {
       origin: WEBAPP_DOMAIN,
       methods: ["GET", "POST"]
     }
-  });
+});
+
+
 const uuid = require('uuid');
 const rwords = require('random-words');
 let rooms = {}
@@ -156,13 +176,13 @@ app.post('/api/create-session', (req, res) => {
     else {
         let root = createNode(discourse, username);
         rooms[roomId] = createRoom(root);
-
-        let secret = rwords({exactly: 4, wordsPerString:4, maxLength: 5, separator:'-'})[0];
-
+        initSocketNamespace(roomId);
         console.log(`* server: room created ${roomId}`);
-
+        
+        
+        // let secret = rwords({exactly: 4, wordsPerString:4, maxLength: 5, separator:'-'})[0];
         //test
-        let roomNodes = rooms[roomId].nodes;
+        // let roomNodes = rooms[roomId].nodes;
 
         //test
         // let lastNodeId = root.id;
@@ -190,7 +210,7 @@ app.post('/api/create-session', (req, res) => {
 
         db.initRoom({roomId: roomId, roomData: '', username:username });
         // res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
-        res.json({ roomId, secret });
+        res.json({ roomId });
     }
 });
 
@@ -218,112 +238,113 @@ app.post('/api/register-user', (req,res)=>{
 //------------------------------------------------------------------------------------------------
 // SERVER SOCKET IO
 //------------------------------------------------------------------------------------------------
-io.on('connection', (socket) => {
-    console.log('* server: user connected');
 
-
-
-
-    //--------------------------------
-    // GET NODES
-    //--------------------------------
-    socket.on('get-nodes', (data) => {
-        console.log(`* server: data retrieval request received`);
-        let { roomId } = data;
-        io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
-    })
-
-    //--------------------------------
-    // ADD NODE
-    //--------------------------------
-    socket.on('add-node', (data) => {
-        let { node: { username, question} , parentId, roomId } = data;
-        console.log(`* server: add node request received: question: ${question} by user: ${username} parentNode: ${parentId} `);
-
-        if(!rooms[roomId]) {
-            console.log(`* server: Could not find room id: ${roomId}`);
-            return;
-        }
-        let roomNodes = rooms[roomId].nodes;
-        let node = createNode(question, username, parentId);
-        try {
-            insertNode(node, parentId, roomNodes);
-
-            //test
-            // let lastNodeId = node.id;
-            // for(let i=0;i<2;i++) {
-            //     let child1 = createNode(question, username, lastNodeId);
-            //     let child2 = createNode(question, username, lastNodeId);
-            //     insertNode(child1, lastNodeId, roomNodes);
-            //     insertNode(child2, lastNodeId, roomNodes);
-            //     // console.log(child1)
-            //     lastNodeId = child1.id;
-            // }
-
-            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
-        } catch (error) {
-            console.log(error);
-        }
-    })
+function initSocketNamespace(roomId) {
+    let namespaceId = `/${roomId}`;
+    io.of(namespaceId).on('connection', (socket) => {
+        console.log('* server: user connected');
     
-    //--------------------------------
-    // ANSWER
-    //--------------------------------
-    socket.on('answer', (data) => {
-        let { answer: { username, content} , nodeId, roomId } = data;
-        
-        if(!rooms[roomId]) {
-            console.log(`* server: Could not find room id: ${roomId}`);
-            return;
-        }
-
-        console.log(`* server: answer request received: answer: ${content} by user: ${username} parentNode: ${nodeId} `);
-        let roomNodes = rooms[roomId].nodes
-        
-        try {
-            let answer = createAnswer(content, username);
-            insertAnswer(answer, nodeId, roomNodes);
-            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
-        } catch (error) {
-            socket.emit('error', error);
-            console.log(error);
-        }
-    })
-
-    socket.on('vote-answer', (data) => {
-        let { username, nodeId, answerId, roomId, up } = data;
-        if(!rooms[roomId]) {
-            console.log(`* server: Could not find room id: ${roomId}`);
-            return;
-        }
-
-        let roomNodes = rooms[roomId].nodes
-        
-        try {
-            voteAnswer(up, username, answerId, nodeId, roomNodes);
-            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
-        } catch (error) {
-            console.log(error);
-        }
-    })
+        //--------------------------------
+        // GET NODES
+        //--------------------------------
+        socket.on('get-nodes', (data) => {
+            console.log(`* server: data retrieval request received`);
+            let { roomId } = data;
+            io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });
+        })
     
-    socket.on('mark-answer', (data) => {
-        let { nodeId, answerId, roomId } = data;
-        if(!rooms[roomId]) {
-            console.log(`* server: Could not find room id: ${roomId}`);
-            return;
-        }
-
-        let roomNodes = rooms[roomId].nodes
-        try {
-            markAnswerAsCorrect(answerId, nodeId, roomNodes);
-            io.sockets.emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
-        } catch (error) {
-            console.log(error);
-        }
-
-    })
-});
+        //--------------------------------
+        // ADD NODE
+        //--------------------------------
+        socket.on('add-node', (data) => {
+            let { node: { username, question} , parentId, roomId } = data;
+            console.log(`* server: add node request received: question: ${question} by user: ${username} parentNode: ${parentId} `);
+    
+            if(!rooms[roomId]) {
+                console.log(`* server: Could not find room id: ${roomId}`);
+                return;
+            }
+            let roomNodes = rooms[roomId].nodes;
+            let node = createNode(question, username, parentId);
+            try {
+                insertNode(node, parentId, roomNodes);
+    
+                //test
+                // let lastNodeId = node.id;
+                // for(let i=0;i<2;i++) {
+                //     let child1 = createNode(question, username, lastNodeId);
+                //     let child2 = createNode(question, username, lastNodeId);
+                //     insertNode(child1, lastNodeId, roomNodes);
+                //     insertNode(child2, lastNodeId, roomNodes);
+                //     // console.log(child1)
+                //     lastNodeId = child1.id;
+                // }
+    
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            } catch (error) {
+                console.log(error);
+            }
+        })
+        
+        //--------------------------------
+        // ANSWER
+        //--------------------------------
+        socket.on('answer', (data) => {
+            let { answer: { username, content} , nodeId, roomId } = data;
+            
+            if(!rooms[roomId]) {
+                console.log(`* server: Could not find room id: ${roomId}`);
+                return;
+            }
+    
+            console.log(`* server: answer request received: answer: ${content} by user: ${username} parentNode: ${nodeId} `);
+            let roomNodes = rooms[roomId].nodes
+            
+            try {
+                let answer = createAnswer(content, username);
+                insertAnswer(answer, nodeId, roomNodes);
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            } catch (error) {
+                socket.emit('error', error);
+                console.log(error);
+            }
+        })
+    
+        socket.on('vote-answer', (data) => {
+            let { username, nodeId, answerId, roomId, up } = data;
+            if(!rooms[roomId]) {
+                console.log(`* server: Could not find room id: ${roomId}`);
+                return;
+            }
+    
+            let roomNodes = rooms[roomId].nodes
+            
+            try {
+                voteAnswer(up, username, answerId, nodeId, roomNodes);
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            } catch (error) {
+                console.log(error);
+            }
+        })
+        
+        socket.on('mark-answer', (data) => {
+            let { nodeId, answerId, roomId } = data;
+            if(!rooms[roomId]) {
+                console.log(`* server: Could not find room id: ${roomId}`);
+                return;
+            }
+    
+            let roomNodes = rooms[roomId].nodes
+            try {
+                markAnswerAsCorrect(answerId, nodeId, roomNodes);
+                io.of(namespaceId).emit('nodes-update', rooms[roomId] || { error: 'ROOM NOT FOUND' });            
+            } catch (error) {
+                console.log(error);
+            }
+    
+        })
+    });
+}
 
 server.listen(SERVER_PORT, () => {
     console.log(`server hosted on ${env.REACT_APP_SERVER_HOST}:${env.REACT_APP_SERVER_PORT} for client port ${env.REACT_APP_CLIENT_PORT}`);

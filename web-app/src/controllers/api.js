@@ -32,9 +32,9 @@ async function createSession(username, discourse) {
     return response;
 }
 
-function socketConnect() {
+function socketConnect(roomId) {
     return new Promise((resolve, reject) => {
-        clientSocket = new ioclient(`${SERVER_DOMAIN}`);
+        clientSocket = new ioclient(`${SERVER_DOMAIN}/${roomId}`);
         clientSocket.on('connect', resolve);
         clientSocket.on('error', (data)=>alert(data));
         clientSocket.on('nodes-update', (data) => {
@@ -53,7 +53,7 @@ function socketConnect() {
 async function requestNodeData(roomId) {
     if(clientSocket === undefined) {
         console.warn('No socket found: reconnecting...');
-        await socketConnect();
+        await socketConnect(roomId);
     }   
     
     clientSocket.emit('get-nodes', { roomId });
@@ -62,7 +62,7 @@ async function requestNodeData(roomId) {
 async function addNode(username, question, parentId, roomId) {
     if(clientSocket === undefined) {
         console.error('No socket found: could not connect');
-        await socketConnect();
+        await socketConnect(roomId);
     }   
     
     clientSocket.emit('add-node', { node: { username, question }, parentId, roomId});
@@ -71,7 +71,7 @@ async function addNode(username, question, parentId, roomId) {
 async function markAsCorrectAnswer(answerId, nodeId, roomId) {
     if(clientSocket === undefined) {
         console.error('No socket found: could not connect');
-        await socketConnect();
+        await socketConnect(roomId);
     }   
     
     clientSocket.emit('mark-answer', { answerId, nodeId, roomId});
