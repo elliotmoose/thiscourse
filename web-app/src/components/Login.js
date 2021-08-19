@@ -12,8 +12,8 @@ const Login = () => {
 	const usernameInput = useRef();
 	const passwordInput = useRef();
 	
-	function onSubmitLogin() {
-		User.login(usernameInput.current.value, passwordInput.current.value);
+	async function onSubmitLogin() {
+		await User.login(usernameInput.current.value, passwordInput.current.value);
 		setLoggedIn(User.isLoggedIn());
 	}
 

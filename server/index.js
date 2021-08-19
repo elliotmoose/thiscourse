@@ -88,12 +88,13 @@ function onDataChange(roomId){
     db.updateRoom({roomId: roomId, roomData: data})
 }
 
-function createRoom(root) {
+function createRoom(root, ownerId) {
     return {
         nodes: {
             [root.id]: root
         },
-        users: {}
+        rootId: root.id,
+        ownerId
     }
 }
 
@@ -173,19 +174,30 @@ app.get('/', (req,res) => {
 });
 
 app.post('/api/create-session', async (req, res) => {
-    let { discourse, username } = req.body;
-    roomId = uuid.v4();
-    if (discourse === undefined || username === undefined) {
-        res.status(401).json({error: 'Missing discourse or username'});
-    }
-    else {
-        let root = createNode(discourse, username);
-        rooms[roomId] = createRoom(root);
-        initSocketNamespace(roomId);
-        console.log(`* server: room created ${roomId}`);
-        await db.initRoom({roomId: roomId, roomData: '', username:username });
-        await db.addOwnedRoomToUser({ username, roomId });
-        res.json({ roomId });
+    try {
+        let { discourse, username } = req.body;
+        roomId = uuid.v4();
+        if (discourse === undefined || username === undefined) {
+            res.status(401).json({error: 'Missing discourse or username'});
+        }
+        else {
+            let root = createNode(discourse, username);
+            rooms[roomId] = createRoom(root, username);
+            initSocketNamespace(roomId);
+            console.log(`* server: room created ${roomId}`);
+            await db.initRoom({roomId: roomId, roomData: ''});
+
+            let roomSummary = {
+                id: roomId,
+                question: root.question
+            }
+
+            await db.addOwnedRoomToUser({ username, roomSummary });
+            res.status(201).json({ roomId });
+        }        
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({error: error.message});
     }
 });
 
@@ -224,22 +236,44 @@ app.post('/api/create-user', async (req,res)=>{
 app.post('/api/login', async (req, res)=>{
     try {
         let { username, password } = req.body;
-        if(!username || !password) {res.status(401).json({error: 'no username given'})}
+        if(!username || !password) {res.status(401).json({error: 'no username or password given'})}
         let user = await db.getUser({username});
         if(user !== null && username == password) {
+            console.log(`${username} logged in successfully`);
             res.status(200).json({success: true});
+            return;
         }
         else {
             res.status(403).json({error: 'wrong username or password'});        
+            return;
         }
     } catch (error) {        
-        res.status(403).json({error: error.message});        
+        res.status(403).json({error: error.message});
+    }
+});
+
+app.post('/api/load-dashboard', async (req,res)=> {
+    try {
+        let { username } = req.body;
+        if(!username) {res.status(401).json({error: 'no username given'})}
+        let dashboard = await db.getUser({ username });
+        if(dashboard) {
+            res.status(200).json(dashboard);
+            return;
+        }
+        else {
+            res.status(403).json({error: 'error loading dashboard'});
+            return;
+        }
+    } catch (error) {        
+        console.log(error);
+        res.status(403).json({error: error.message});
     }
 });
 
 app.post('/api/restart', async (req,res)=>{
     let { roomId, username } = req.body;
-    const data = await db.getRefreshedRoom({roomId: roomId, username: username })
+    const data = await db.getUserOwnedRoom({roomId, username });
     if (data != null){
         const parsedData = JSON.parse(data);
         rooms[roomId] = parsedData;

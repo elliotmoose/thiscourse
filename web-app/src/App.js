@@ -39,8 +39,8 @@ class App extends Component {
         {/*All our Routes goes here!*/}
         <AuthRoute component={Dashboard} path="/" exact={true} />
         <Route path="/login" exact={true} component={Login} />
-        <Route path="/session/:sessionId/" exact={true} component={Main} />
-        <Route path="/session/:sessionId/discussion/:questionNodeId/" component={Discussion} />
+        <AuthRoute path="/session/:sessionId/" exact={true} component={Main} />
+        <AuthRoute path="/session/:sessionId/discussion/:questionNodeId/" component={Discussion} />
         </Router>
       </div>
     );

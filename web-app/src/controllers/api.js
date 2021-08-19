@@ -21,7 +21,13 @@ function getIsHost(sessionId) {
 }
 
 async function createSession(username, discourse) {
-    if(!username || !discourse) return;
+    if(!username) {
+        alert("Please login again");        
+    }
+
+    if(!discourse) {
+        alert("Please enter a question");
+    }
     let res = await fetch(`${SERVER_DOMAIN}/api/create-session`, {
         method: 'POST',
         body: JSON.stringify({ username, discourse }),
@@ -29,6 +35,7 @@ async function createSession(username, discourse) {
     })
 
     let response = await res.json();
+    console.log(response);
     response.roomId && hostOfSessionIds.push(response.roomId);
     return response;
 }
@@ -50,6 +57,23 @@ async function joinSession(username, roomId) {
     let response = await res.json();
     return response;
 }
+
+
+async function loadDashboard(username) {
+    if(!username) return {
+        error: 'no username provided'
+    };
+
+    let res = await fetch(`${SERVER_DOMAIN}/api/load-dashboard`, {
+        method: 'POST',
+        body: JSON.stringify({ username }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    let response = await res.json();
+    return response;
+}
+
 
 function socketConnect(roomId) {
     return new Promise((resolve, reject) => {
@@ -129,5 +153,20 @@ async function registerUser(username, roomId) {
 
 }
 
-const API = { createSession, joinSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, voteAnswer};
+async function userLogin(username, password) {
+    let res = await fetch(`${SERVER_DOMAIN}/api/login`, {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    let response = await res.json();
+    if(response.success) {
+        return true;
+    }
+
+    return false;
+}
+
+const API = { createSession, joinSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
 export default API;

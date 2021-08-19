@@ -9,19 +9,7 @@
         //Setting up Collection 1: Users, Document: Usernames, Field: User/Userid/Email/password/Events attended
         let colRef_rooms = this.firestore.collection("Rooms");
         let docRef_room = colRef_rooms.doc(payload.roomId);
-        await docRef_room.set({data : payload.roomData});
-        
-        console.log("Initializing User");
-        let colRef_users = this.firestore.collection("Users");
-        let docRef_user = colRef_users.doc(payload.username);
-        const doc = await docRef_user.get();
-        if (!doc.exists){
-            await docRef_user.set({roomIds : [], roomOwnedIds:[payload.roomId]});
-        }
-        else{
-            const updateUser = await docRef_user.update({roomOwnedIds : this.FieldValue.arrayUnion(payload.roomId)})
-        }
-        
+        await docRef_room.set({data : payload.roomData});        
         console.log("INITIALISATION DONE \n")
     }
 
@@ -31,7 +19,7 @@
         let docRef_user = colRef_users.doc(username);
         const doc = await docRef_user.get();
         if (!doc.exists){
-            await docRef_user.set({roomIds : [], roomOwnedIds:[]});
+            await docRef_user.set({prevRooms : [], ownedRooms:[]});
             console.log("User created");
         }
         else{
@@ -44,24 +32,25 @@
         let docRef_user = colRef_users.doc(username);
         const doc = await docRef_user.get();
         if (doc.exists){
-            return doc.data;
+            return doc.data();
         }
         else {
             return null;
         }
     }
 
-    async addJoinedRoomToUser({username, roomId}) {
+    async addJoinedRoomToUser({username, roomSummary}) {
         let colRef_users = this.firestore.collection("Users");
         let docRef_user = colRef_users.doc(username);
         const doc = await docRef_user.get();
         if (!doc.exists){
             throw new Error("User does not exist");
         }
-        const updateUser = await docRef_user.update({roomIds : this.FieldValue.arrayUnion(roomId)})
+        const updateUser = await docRef_user.update({prevRooms : this.FieldValue.arrayUnion(roomSummary)})
+        return updateUser;
     }
     
-    async addOwnedRoomToUser({username, roomId}) {
+    async addOwnedRoomToUser({username, roomSummary}) {
         let colRef_users = this.firestore.collection("Users");
         let docRef_user = colRef_users.doc(username);
         const doc = await docRef_user.get();
@@ -69,7 +58,8 @@
             throw new Error("User does not exist");
         }
 
-        const updateUser = await docRef_user.update({roomOwnedIds : this.FieldValue.arrayUnion(roomId)})
+        const updateUser = await docRef_user.update({ownedRooms : this.FieldValue.arrayUnion(roomSummary)})
+        return updateUser;
     }
 
 
@@ -87,7 +77,7 @@
         return doc.exists;
     }
     
-    async getRefreshedRoom(payload){
+    async getUserOwnedRoom(payload){
         console.log('retrieving room')
         let colRef_rooms = this.firestore.collection("Rooms");
         let colRef_users = this.firestore.collection("Users");
@@ -99,14 +89,14 @@
             return null;
         }
         else{
-            const roomOwnedIds = doc_user.roomOwnedIds();
-            if (roomOwnedIds.includes(payload.roomId)){
-                let docRef_room = colRef_rooms.doc(payload.roomId);
-                const doc_room = await docRef_room.get();
-                const data = doc_room.data();
-                return data.data;
+            let docRef_room = colRef_rooms.doc(payload.roomId);
+            const doc_room = await docRef_room.get();
+            const room = doc_room.data();
+
+            if(room.ownerId == playload.username) {
+                return room.data;
             }
-            else{
+            else {
                 return null;
             }
         }
