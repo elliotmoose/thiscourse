@@ -170,7 +170,7 @@ const Main = () => {
 				</p>
 				<br/>
 
-				<button type="button" disabled={isOnline ? false : true} onClick={addResource}  className="sidebar-text" style={{ background: Colors.purple, borderRadius: 20, width:"75%", height:"2em", marginBottom: "1em",  display: `${sideBarExpand ? "inline-block" : "none"}`, cursor: 'pointer'}}>
+				<button type="button" disabled={!isOnline} onClick={addResource}  className="sidebar-text" style={{ background: Colors.purple, borderRadius: 20, width:"75%", height:"2em", marginBottom: "1em",  display: `${sideBarExpand ? "inline-block" : "none"}`, cursor: 'pointer'}}>
 					<Add style={{width: 20, height: 20 , backgroundColor:"white", borderRadius: 10, marginRight:"0.5em"}}/> Add Resources
 				</button>
 
@@ -208,7 +208,7 @@ const Main = () => {
 		</SideNav>
 		
 		<div style={{top:0, left:0, position:"absolute" ,minWidth:"100%", minHeight:"12em", backgroundImage:`url("${coverImgURL}")`, backgroundSize: "cover" ,  backgroundPosition: "center"}}>
-			<button disabled={isOnline ? false : true}  onClick={changeCoverURL} style={{  cursor: 'pointer', position:"absolute", top:"1em", right:"1em", border:0, backgroundColor:"transparent"}}>
+			<button disabled={!isOnline}  onClick={changeCoverURL} style={{  cursor: 'pointer', position:"absolute", top:"1em", right:"1em", border:0, backgroundColor:"transparent"}}>
 				<Edit style={{ padding:"0.5em"  , width: 30, height: 30 , backgroundColor:"white", borderRadius: "1.3em", marginRight:"0.5em"}}/>
 			</button>
 			<Banner css={{ visibility:  `${isOnline ? "hidden" : "visible"}` , position:"relative", left:'15%', marginTop:'2%' ,  width:"70%",  borderRadius:10, background:"#95a5a6", color: "white"}} title="The session is currently offline, please contact session owner to restart session."  showBanner={true} />
@@ -218,7 +218,7 @@ const Main = () => {
 
 		<p style={{fontWeight: 800, fontSize: 24, marginTop: "7em"}}>{question}</p>
 
-		<button  disabled={isOnline ? false : true}  onClick={addNode} style={{  padding:0 ,  width: 25, height: 24, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 20, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></button>
+		<button  disabled={!isOnline}  onClick={addNode} style={{  padding:0 ,  width: 25, height: 24, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 20, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></button>
 		
 
 
@@ -239,7 +239,7 @@ const Main = () => {
 				var ii = 0;
 				for (var i = 0; i < level_width; i++){
 					if(dfs_level.includes(i+1)){
-						nodes.push(<QuestionNode key={`${ii}node`} item={level[ii]}/>);
+						nodes.push(<QuestionNode key={`${ii}node`} item={level[ii]} disabled={isOnline} />);
 
 						if(level[ii].parentId!=parent){
 							parent = level[ii].parentId;

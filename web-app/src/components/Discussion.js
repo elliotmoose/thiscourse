@@ -6,12 +6,14 @@ import API from '../controllers/api';
 import { useEffect, useRef, useState } from 'react';
 import { FullscreenExit } from '@material-ui/icons';
 import User from '../controllers/user';
+import Banner from 'react-js-banner';
 
 function Discussion(props) {
   const { sessionId, questionNodeId } = useParams();
   
   const history = useHistory()
   let [node, setNode] = useState(undefined);
+  let [isOnline, setIsOnline] = useState(true);
   let textAreaRef = useRef();
 
   useEffect(()=>{
@@ -73,6 +75,7 @@ function Discussion(props) {
   
   return (
     <div className='container'>
+      <Banner css={{ visibility:  `${isOnline ? "hidden" : "visible"}` , position:"relative", left:'15%', marginTop:'2%' ,  width:"70%",  borderRadius:10, background:"#95a5a6", color: "white"}} title="The session is currently offline, please contact session owner to restart session."  showBanner={true} />
       <div className="discussion">
         <div onClick={exitDiscussion} style={{display: 'flex', justifyContent: 'flex-end', position: 'static', top: 12, right: 12, alignItems: 'center', cursor: 'pointer'}}>
             <div style={{marginLeft: -5, height: 25, width: 25}}><FullscreenExit style={{color: '#B0B0B0'}}/></div>                
@@ -87,14 +90,14 @@ function Discussion(props) {
           <div className="discussion-body">
             {answers.map((item) => {
               let isAnswer = (item.id == node.correctAnswerId && item.id !== undefined)
-              return <Answer nodeId={node.id} item={item} isAnswer={isAnswer}/>;
+              return <Answer nodeId={node.id} item={item} isAnswer={isAnswer} disabled={!isOnline}/>;
             })}
           </div>
           <div style={{flex: 1}}/>
         </div>
         <div className="discussion-textbox">
           <textarea className="discussion-textarea" ref={textAreaRef}></textarea>
-          <div className="discussion-submit" onClick={submitAnswer}>submit</div>
+          <div disabled = {!isOnline} className="discussion-submit" onClick={submitAnswer}>submit</div>
         </div>
       </div>
     </div>

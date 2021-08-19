@@ -5,6 +5,7 @@ import User from "../controllers/user";
 
 export default function QuestionNode(props) {
 	let node = props.item;
+	let disabled = props.disabled;
 	var width = 1*25;
 
 
@@ -38,7 +39,9 @@ export default function QuestionNode(props) {
                     <div style={{color: '#B0B0B0'}}>Click To View Discussion</div>
                 </div>            
             </div>
-            <div onClick={addNode} style={{width: 20, height: 20, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 10, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></div>
+            {/* <div onClick={addNode} style={{width: 20, height: 20, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 10, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></div> */}
+            <button  disabled={disabled ? false : true}  onClick={addNode} style={{  padding:0 ,  width: 25, height: 24, backgroundColor: 'lightgray', alignSelf: 'flex-end', marginBottom: 8, marginLeft: 8, borderRadius: 20, cursor: 'pointer'}}><Add style={{width: 20, height: 20}}/></button>
+		
         </div>
 	</th>
 }
