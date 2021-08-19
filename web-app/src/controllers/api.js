@@ -21,6 +21,7 @@ function getIsHost(sessionId) {
 }
 
 async function createSession(username, discourse) {
+    if(!username || !discourse) return;
     let res = await fetch(`${SERVER_DOMAIN}/api/create-session`, {
         method: 'POST',
         body: JSON.stringify({ username, discourse }),
@@ -29,6 +30,24 @@ async function createSession(username, discourse) {
 
     let response = await res.json();
     response.roomId && hostOfSessionIds.push(response.roomId);
+    return response;
+}
+
+async function joinSession(username, roomId) {
+    if(!username || !roomId) return;
+
+    let res = await fetch(`${SERVER_DOMAIN}/api/join-session`, {
+        method: 'POST',
+        body: JSON.stringify({ username, roomId }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    if(res.status === 404) {
+        return {
+            error: 'room not found'
+        }
+    } 
+    let response = await res.json();
     return response;
 }
 
@@ -110,5 +129,5 @@ async function registerUser(username, roomId) {
 
 }
 
-const API = { createSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, voteAnswer};
+const API = { createSession, joinSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, voteAnswer};
 export default API;

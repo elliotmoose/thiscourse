@@ -172,70 +172,68 @@ app.get('/', (req,res) => {
     res.send("=== Thiscourse REST API");
 });
 
-app.post('/api/create-session', (req, res) => {
+app.post('/api/create-session', async (req, res) => {
     let { discourse, username } = req.body;
     roomId = uuid.v4();
     if (discourse === undefined || username === undefined) {
-        res.status(401).send('Missing discourse or username');
+        res.status(401).json({error: 'Missing discourse or username'});
     }
     else {
         let root = createNode(discourse, username);
         rooms[roomId] = createRoom(root);
         initSocketNamespace(roomId);
         console.log(`* server: room created ${roomId}`);
-        
-        
-        // let secret = rwords({exactly: 4, wordsPerString:4, maxLength: 5, separator:'-'})[0];
-        //test
-        // let roomNodes = rooms[roomId].nodes;
-
-        //test
-        // let lastNodeId = root.id;
-
-        // for(let i=0;i<2;i++) {
-        //     let child1 = createNode(`test question: level ${i} child 1`, username, lastNodeId);
-        //     let child2 = createNode(`test question: level ${i} child 2`, username, lastNodeId);
-        //     insertNode(child1, lastNodeId, roomNodes);
-        //     insertNode(child2, lastNodeId, roomNodes);
-
-        //     for(let j=0; j<10; j++) {
-        //         let answer1 = createAnswer(`test answer ${i},${j}, child 1`, username);
-        //         insertAnswer(answer1, child1.id, roomNodes);
-        //         let answer2 = createAnswer(`test answer ${i},${j}, child 2`, username);
-        //         insertAnswer(answer2, child2.id, roomNodes);
-
-        //         if(i == 1 && j == 6) {
-        //             markAnswerAsCorrect(answer2.id, child2.id, roomNodes);
-        //         }
-        //     }
-
-        //     // console.log(child1)
-        //     lastNodeId = child1.id;
-        // }
-
-        db.initRoom({roomId: roomId, roomData: '', username:username });
-        // res.json({ url: `http://${WEBAPP_DOMAIN}/${roomId}`, secret });
+        await db.initRoom({roomId: roomId, roomData: '', username:username });
+        await db.addOwnedRoomToUser({ username, roomId });
         res.json({ roomId });
     }
 });
 
-app.post('/api/register-user', (req,res)=>{
+app.post('/api/join-session', async (req, res) => {
     let { roomId, username } = req.body;
-
-    if(!rooms[roomId]) {
-        console.log(`* server: Could not find room id: ${roomId}`);
-        return;
-    }
-
-    let room = rooms[roomId];
-    if(room.users[username]) {
-        res.status(400).send({error: 'username taken'});
+    if (roomId === undefined || username === undefined) {
+        res.status(401).json({error: 'Missing roomId or username'});
     }
     else {
-        room.users[username] = true;
-        res.status(200).send({username});
-        db.addUser({roomId: roomId, username: username });
-        console.log('registered user!')
+        let room = rooms[roomId];
+
+        let roomExists = await db.roomExists({roomId});
+
+        if(!roomExists) 
+            res.status(404).json({error: "Room not found"});
+
+        if(!room) {
+            res.json({ online: false }); //room isnot online
+        }
+
+        res.json({ online: true });
+    }
+});
+
+app.post('/api/create-user', async (req,res)=>{
+    try {
+        let { username } = req.body;
+        if(!username) {res.status(401).json({error: 'no username given'})}
+        await db.addUser({ username });
+        res.status(201).json({username});        
+    } catch (error) {        
+        res.status(403).json({error: error.message});        
+    }
+});
+
+app.post('/api/login', async (req, res)=>{
+    try {
+        let { username, password } = req.body;
+        if(!username || !password) {res.status(401).json({error: 'no username given'})}
+        let user = await db.getUser({username});
+        if(user !== null && username == password) {
+            res.status(200).json({success: true});
+        }
+        else {
+            res.status(403).json({error: 'wrong username or password'});        
+        }
+    } catch (error) {        
+        res.status(403).json({error: error.message});        
     }
 });
 
@@ -245,13 +243,12 @@ app.post('/api/restart', async (req,res)=>{
     if (data != null){
         const parsedData = JSON.parse(data);
         rooms[roomId] = parsedData;
-        res.status(200).send({roomId});
+        res.status(200).json({roomId});
     }
     else{
-        res.status(400).send({error: 'room cannot be restarted'});
+        res.status(400).json({error: 'room cannot be restarted'});
     }
-})
-
+});
 
 //------------------------------------------------------------------------------------------------
 // SERVER SOCKET IO

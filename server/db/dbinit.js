@@ -25,23 +25,66 @@
         console.log("INITIALISATION DONE \n")
     }
 
-    async addUser(payload){
+    async addUser({username}){
+        console.log(`Creating user: ${username}...`);
         let colRef_users = this.firestore.collection("Users");
-        let docRef_user = colRef_users.doc(payload.username);
+        let docRef_user = colRef_users.doc(username);
         const doc = await docRef_user.get();
         if (!doc.exists){
-            await docRef_user.set({roomIds : [payload.roomId], roomOwnedIds:[]});
+            await docRef_user.set({roomIds : [], roomOwnedIds:[]});
+            console.log("User created");
         }
         else{
-            const updateUser = await docRef_user.update({roomIds : this.FieldValue.arrayUnion(payload.roomId)})
+            throw new Error("User already exists")
         }
     }
+
+    async getUser({username}) {
+        let colRef_users = this.firestore.collection("Users");
+        let docRef_user = colRef_users.doc(username);
+        const doc = await docRef_user.get();
+        if (doc.exists){
+            return doc.data;
+        }
+        else {
+            return null;
+        }
+    }
+
+    async addJoinedRoomToUser({username, roomId}) {
+        let colRef_users = this.firestore.collection("Users");
+        let docRef_user = colRef_users.doc(username);
+        const doc = await docRef_user.get();
+        if (!doc.exists){
+            throw new Error("User does not exist");
+        }
+        const updateUser = await docRef_user.update({roomIds : this.FieldValue.arrayUnion(roomId)})
+    }
+    
+    async addOwnedRoomToUser({username, roomId}) {
+        let colRef_users = this.firestore.collection("Users");
+        let docRef_user = colRef_users.doc(username);
+        const doc = await docRef_user.get();
+        if (!doc.exists){
+            throw new Error("User does not exist");
+        }
+
+        const updateUser = await docRef_user.update({roomOwnedIds : this.FieldValue.arrayUnion(roomId)})
+    }
+
 
     async updateRoom(payload){
         console.log('updating room')
         let colRef_rooms = this.firestore.collection("Rooms");
         let docRef_room = colRef_rooms.doc(payload.roomId);
         await docRef_room.set({data : payload.roomData});
+    }
+
+    async roomExists({roomId})  {
+        let colRef_rooms = this.firestore.collection("Rooms");
+        let docRef_room = colRef_rooms.doc(roomId);
+        const doc = await docRef_room.get();
+        return doc.exists;
     }
     
     async getRefreshedRoom(payload){

@@ -30,14 +30,30 @@ const Dashboard = () => {
 		// so it would be like  API.createSession(username, discourse, cover_img_url); 
 		let { roomId } = await API.createSession(username, discourse);
 		await API.socketConnect(roomId);
-		history.push(`/session/${roomId}/`);									
+		history.push(`/session/${roomId}/`);
 	}
 
 	function onCoverImageClicked(){
 		cover_img_url = prompt("Enter image URL");
 	}
 	
-	function onJoinSession() {
+	async function onJoinSession() {
+		let username = User.getUsername();
+		let roomId = joinSessionInput.current.value;
+
+		let result = await API.joinSession(username, roomId);
+		
+		if(result.error) {
+			alert(result.error);
+		}
+		else if(result.online === true) {
+			await API.socketConnect(roomId);
+			history.push(`/session/${roomId}/`);
+		}
+		else if (result.online === false) {
+			let roomData = result.data;
+			//maybe show room data, and that room is offline?
+		}
 
 	}
 
@@ -62,7 +78,7 @@ const Dashboard = () => {
 			<div style={{flex: 1}}>
 				<div style={{width: 300, marginLeft: 40}}>
 					<input style={{...Fonts.bold, marginTop: 20, boxSizing: 'border-box',outline: 0, border: 0, borderRadius: 8, backgroundColor: Colors.lightGray, height: 50, width: '100%', padding: 4, paddingLeft: 14, marginBottom: 8}} ref={questionInput} placeholder="Enter a Session ID"></input>
-					<Button style={{...Fonts.bold, marginTop: 20, backgroundColor: Colors.green, height: 50, width: '100%', borderRadius: 8, color: 'white'}} onClick={onStartSession}><div>Join an active Session</div></Button>
+					<Button style={{...Fonts.bold, marginTop: 20, backgroundColor: Colors.green, height: 50, width: '100%', borderRadius: 8, color: 'white'}} onClick={onJoinSession}><div>Join an active Session</div></Button>
 					<div style={{...Fonts.bold, color: Colors.purple, marginTop: 20}}>You also joined these Sessions</div>
 					{joinedSessions.map((eachSession) => <Button style={{backgroundColor: 'white', marginTop: 20, height: 60, borderRadius: 8, ...Fonts.bold, color: Colors.darkGray}}>{eachSession.question}</Button>)}
 				</div>				
