@@ -52,12 +52,8 @@
         let isDuplicateSummary = user.prevRooms.findIndex((each)=>each.id == roomSummary.id) != -1;
 
         if(!isDuplicateSummary) {
-            console.log('added summary')
             const updateUser = await docRef_user.update({prevRooms : this.FieldValue.arrayUnion(roomSummary)})
             return updateUser;
-        }
-        else {
-            console.log('duplicate summary')
         }
 
         return user;
