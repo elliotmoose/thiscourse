@@ -7,7 +7,7 @@ import Button from './Button';
 import User from '../controllers/user';
 
 export default function Answer(props) {
-    let { nodeId, item, isAnswer } = props;
+    let { nodeId, item, isAnswer, disabled} = props;
     let { sessionId } = useParams();
     let isHost = API.getIsHost(sessionId);
     
@@ -25,15 +25,15 @@ export default function Answer(props) {
     }
 
     return <div className = {`discussion-box ${isAnswer &&  'correct-answer-box'}`}>
-    {isHost && <Button onClick={markAsCorrectAnswer} style={{position: 'absolute', top: 5, right: 5, borderRadius: 25, padding: 6}}>
+    {isHost && <Button disabled={disabled} onClick={markAsCorrectAnswer} style={{position: 'absolute', top: 5, right: 5, borderRadius: 25, padding: 6}}>
         <Check style={{height: 25, width: 25, color: isAnswer ? '#87DEBF' : 'gray'}}/>
     </Button>}
     <div className ="box-content">"{item.content}"</div>
     <div className ="box-name">- {item.username}</div>
     <div className ="box-vote">
-      <div onClick={()=>vote(true)} className="thumb"><ThumbUpIcon style={{color: '#87DEBF', width: 18, height: 18, cursor: 'pointer'}}/></div>
+      <div disabled={disabled} onClick={()=>vote(true)} className="thumb"><ThumbUpIcon style={{color: '#87DEBF', width: 18, height: 18, cursor: 'pointer'}}/></div>
       <div style={{marginRight: 12, fontWeight: 500, color: '#87DEBF'}} >{item.thumbsUp?.length}</div>
-      <div onClick={()=>vote(false)} className="thumb"><ThumbDownIcon style={{color: '#DE8787', width: 18, height: 18, cursor: 'pointer'}}/></div>
+      <div disabled={disabled} onClick={()=>vote(false)} className="thumb"><ThumbDownIcon style={{color: '#DE8787', width: 18, height: 18, cursor: 'pointer'}}/></div>
       <div style={{fontWeight: 500, color: '#DE8787'}}>{item.thumbsDown?.length}</div>
     </div>
   </div>  
