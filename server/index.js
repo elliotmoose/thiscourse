@@ -182,10 +182,11 @@ app.post('/api/create-session', async (req, res) => {
         }
         else {
             let root = createNode(discourse, username);
-            rooms[roomId] = createRoom(root, username);
+            let room = createRoom(root, username);
+            rooms[roomId] = room;
             initSocketNamespace(roomId);
             console.log(`* server: room created ${roomId}`);
-            await db.initRoom({roomId: roomId, roomData: ''});
+            await db.initRoom({roomId, roomData: room});
 
             let roomSummary = {
                 id: roomId,
@@ -215,7 +216,8 @@ app.post('/api/join-session', async (req, res) => {
             res.status(404).json({error: "Room not found"});
 
         if(!room) {
-            res.json({ online: false }); //room isnot online
+            const data = await db.getRoom({ roomId, username });
+            res.json({ online: false, data }); //room isnot online
         }
 
         res.json({ online: true });
@@ -271,16 +273,50 @@ app.post('/api/load-dashboard', async (req,res)=> {
     }
 });
 
-app.post('/api/restart', async (req,res)=>{
-    let { roomId, username } = req.body;
-    const data = await db.getUserOwnedRoom({roomId, username });
-    if (data != null){
-        const parsedData = JSON.parse(data);
-        rooms[roomId] = parsedData;
-        res.status(200).json({roomId});
-    }
-    else{
-        res.status(400).json({error: 'room cannot be restarted'});
+/**
+ * if input username is owner: restart the session
+ * else attempt to join the session. 
+ * if session is offline, returns room data
+ * else, returns online: true to establish socket connection
+ */
+app.post('/api/join-restart-session', async (req,res)=>{
+    try {
+        let { roomId, username } = req.body;
+        const room = await db.getRoom({roomId});
+    
+        if(!room) {
+            throw new Error("Session does not exist");
+        }
+
+        let isOwner = (room.ownerId == username);
+
+        if(isOwner) {
+            //========================================================================
+            //
+            //                            RESTART SESSION                             
+            //
+            //========================================================================
+            //we only want to init socket namespace once per server lifetime
+            if(!rooms[roomId]) {
+                initSocketNamespace(roomId);
+            }
+    
+            rooms[roomId] = room;
+            res.status(200).json({online: true, owner: true});
+        }
+        else {
+            //========================================================================
+            //
+            //                            JOIN SESSION
+            //
+            //========================================================================            
+            let isOnline = (rooms[roomId] !== undefined);
+            res.status(200).json({online: isOnline, owner: false, data: room});
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({error: error.message});
     }
 });
 

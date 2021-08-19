@@ -13,9 +13,11 @@ import SideNav, { Toggle, Nav, NavItem, NavIcon, NavText } from '@trendmicro/rea
 
 // Be sure to include styles at some point, probably during your bootstraping
 import '@trendmicro/react-sidenav/dist/react-sidenav.css';
+import { useHistory } from 'react-router-dom';
 
 const Main = () => {
     const { sessionId } = useParams();
+	const history = useHistory();
     
     let [rootNode, setRootNode] = useState({});
     let [nodesByLevel, setNodesByLevel] = useState([]);
@@ -28,23 +30,49 @@ const Main = () => {
 	let [resources, setResources] = useState([{resourceTitle:"Life of Pi", resourceURL:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", resourceType:"book"},{resourceTitle:"HowToWrite", resourceURL:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", resourceType:"video"}]);
 	let [coverImgURL, setCoverImgURL] = useState("https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2017/08/nostalgia_design.jpg");
 	// let coverImgURL = "https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2017/08/nostalgia_design.jpg";
-    
-    useEffect(()=>{
-        API.apiEventEmitter.on('nodes-update', (data)=>{
-            let treeRoot = Tree.buildTree(data);
-            setRootNode(treeRoot);
-            
-      //       let out_arr = [];
-		    // let visited = new Set();
+	async function onLoadSession() {
+		let username = User.getUsername();
+		let response = await API.joinOrRestartSession(username, sessionId);//join if not owner, restart if owner
+		if(!response || response.error) {
+			alert(response.error ? response.error : 'failed to enter session');
+			history.push(`/`); //reset to main page on session fail
+			return;
+		}
 
-		    // Tree.dfs(visited, treeRoot, out_arr, -1, 1);
-            
-            let _nodesByLevel = Tree.byLevel(treeRoot);
-            setNodesByLevel(_nodesByLevel);
-        });
-        
-        API.requestNodeData(sessionId);
-    }, [])
+		if(response.online === false) {
+			//static data from response
+			let treeRoot = Tree.buildTree(response.data);
+			setRootNode(treeRoot);
+			let _nodesByLevel = Tree.byLevel(treeRoot);
+			setNodesByLevel(_nodesByLevel);
+			return;
+		}
+
+		//IMPLEMENTATION NOTE: if session is validated to be online, connect to it
+		await API.socketConnect(sessionId);
+		
+		API.apiEventEmitter.on('nodes-update', (data)=>{
+			let treeRoot = Tree.buildTree(data);
+			setRootNode(treeRoot);
+			
+		//       let out_arr = [];
+			// let visited = new Set();
+
+			// Tree.dfs(visited, treeRoot, out_arr, -1, 1);
+			
+			let _nodesByLevel = Tree.byLevel(treeRoot);
+			setNodesByLevel(_nodesByLevel);
+		});
+		
+		API.requestNodeData(sessionId); //socket request
+	}
+
+    useEffect(()=>{
+		//check if session is online
+		//if session offline, display static data
+		//else, connect
+		onLoadSession();
+    }, []);
 
     var question = nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0] && nodesByLevel[0][0].question || 'loading question...';
 

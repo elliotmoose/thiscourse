@@ -4,13 +4,13 @@
         this.FieldValue = FieldValue;
     }
 
-    async initRoom(payload) {
+    async initRoom({roomId, roomData}) {
         console.log("Initializing Room");
         //Setting up Collection 1: Users, Document: Usernames, Field: User/Userid/Email/password/Events attended
         let colRef_rooms = this.firestore.collection("Rooms");
-        let docRef_room = colRef_rooms.doc(payload.roomId);
-        await docRef_room.set({data : payload.roomData});        
-        console.log("INITIALISATION DONE \n")
+        let docRef_room = colRef_rooms.doc(roomId);
+        await docRef_room.set({data : roomData});  
+        console.log('room created on database:', roomId);
     }
 
     async addUser({username}){
@@ -77,30 +77,16 @@
         return doc.exists;
     }
     
-    async getUserOwnedRoom(payload){
-        console.log('retrieving room')
+    async getRoom({roomId}){
         let colRef_rooms = this.firestore.collection("Rooms");
-        let colRef_users = this.firestore.collection("Users");
-        let docRef_user = colRef_users.doc(payload.username);        
-        
-        const doc_user = await docRef_user.get();
-        if (!doc_user.exists){
-            console.log('No such user!')
+        let docRef_room = colRef_rooms.doc(roomId);
+        const doc_room = await docRef_room.get();
+        if(!doc_room.exists) {
+            console.log("retrieving room but does not exist: ", roomId);
             return null;
         }
-        else{
-            let docRef_room = colRef_rooms.doc(payload.roomId);
-            const doc_room = await docRef_room.get();
-            const room = doc_room.data();
-
-            if(room.ownerId == playload.username) {
-                return room.data;
-            }
-            else {
-                return null;
-            }
-        }
-
+        const room = doc_room.data();
+        return room.data;
     }
 
 }

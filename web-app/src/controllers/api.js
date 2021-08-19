@@ -40,25 +40,40 @@ async function createSession(username, discourse) {
     return response;
 }
 
-async function joinSession(username, roomId) {
-    if(!username || !roomId) return;
+async function joinOrRestartSession(username, roomId) {
+    if(!username || !roomId) {
+        console.error('no username or roomid specified');
+        return;
+    }
 
-    let res = await fetch(`${SERVER_DOMAIN}/api/join-session`, {
+    try {
+        let res = await fetch(`${SERVER_DOMAIN}/api/join-restart-session`, {
+            method: 'POST',
+            body: JSON.stringify({ username, roomId }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+    
+        let response = await res.json();
+        return response;        
+    } catch (error) {
+        return {
+            error: error.message
+        }
+    }
+}
+
+async function restartSession(username, roomId) {
+    if(!username || !roomId) {
+        console.error('no username or roomid specified');
+        return;
+    }
+
+    let res = await fetch(`${SERVER_DOMAIN}/api/restart-session`, {
         method: 'POST',
         body: JSON.stringify({ username, roomId }),
         headers: { 'Content-Type': 'application/json' }
     })
-
-    if(res.status === 404) {
-        return {
-            error: 'room not found'
-        }
-    } 
-    let response = await res.json();
-    return response;
 }
-
-
 async function loadDashboard(username) {
     if(!username) return {
         error: 'no username provided'
@@ -150,7 +165,6 @@ async function registerUser(username, roomId) {
     if(response.username) {
         return response.username;
     }
-
 }
 
 async function userLogin(username, password) {
@@ -168,5 +182,5 @@ async function userLogin(username, password) {
     return false;
 }
 
-const API = { createSession, joinSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
+const API = { createSession, joinOrRestartSession, restartSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
 export default API;
