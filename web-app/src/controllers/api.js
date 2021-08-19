@@ -10,7 +10,7 @@ let apiEventEmitter = new APIEventEmitter();
 
 let clientSocket;
 let nodeData;
-let hostOfSessionIds = [];
+let isHost = false;
 
 function getNodeData() {
     return nodeData;
@@ -20,8 +20,11 @@ function setNodeData(_nodeData) {
     nodeData = _nodeData;
 }
 
-function getIsHost(sessionId) {
-    return hostOfSessionIds.indexOf(sessionId) != -1;
+function setIsHost(_isHost) {
+    isHost = _isHost;
+}
+function getIsHost() {
+    return isHost;
 }
 
 async function createSession(username, discourse) {
@@ -39,8 +42,6 @@ async function createSession(username, discourse) {
     })
 
     let response = await res.json();
-    console.log(response);
-    response.roomId && hostOfSessionIds.push(response.roomId);
     return response;
 }
 
@@ -186,5 +187,5 @@ async function userLogin(username, password) {
     return false;
 }
 
-const API = { createSession, joinOrRestartSession, restartSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, setNodeData, getIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
+const API = { createSession, joinOrRestartSession, restartSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, setNodeData, getIsHost, setIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
 export default API;

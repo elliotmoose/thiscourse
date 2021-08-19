@@ -42,6 +42,10 @@ const Main = () => {
 			return;
 		}
 
+		if(response.owner !== null && response.owner !== undefined) {
+			API.setIsHost(response.owner);
+		}
+		
 		console.log(`Room Status: Online: ${response.online} Owner: ${response.owner}`);
 		if(response.online === false) {
 			//static data from response
