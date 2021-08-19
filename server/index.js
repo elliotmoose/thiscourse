@@ -84,12 +84,12 @@ function createNode(question, username, parentId=null) {
 }
 
 function onDataChange(roomId){
-    const data = JSON.stringify(rooms[roomId]);
-    db.updateRoom({roomId: roomId, roomData: data})
+    db.updateRoom({roomId: roomId, roomData: rooms[roomId]})
 }
 
-function createRoom(root, ownerId) {
+function createRoom(id, root, ownerId) {
     return {
+        id,
         nodes: {
             [root.id]: root
         },
@@ -166,6 +166,15 @@ function markAnswerAsCorrect(answerId, nodeId, roomNodes) {
     roomNodes[nodeId].correctAnswerId = answerId;
 }
 
+function createRoomSummary(room) {
+    let roomSummary = {
+        id: room.id,
+        question: room.nodes[room.rootId].question
+    }
+
+    return roomSummary;
+}
+
 //------------------------------------------------------------------------------------------------
 // SERVER REST API
 //------------------------------------------------------------------------------------------------
@@ -182,16 +191,13 @@ app.post('/api/create-session', async (req, res) => {
         }
         else {
             let root = createNode(discourse, username);
-            let room = createRoom(root, username);
+            let room = createRoom(roomId, root, username);
             rooms[roomId] = room;
             initSocketNamespace(roomId);
             console.log(`* server: room created ${roomId}`);
             await db.initRoom({roomId, roomData: room});
 
-            let roomSummary = {
-                id: roomId,
-                question: root.question
-            }
+            let roomSummary = createRoomSummary(room);
 
             await db.addOwnedRoomToUser({ username, roomSummary });
             res.status(201).json({ roomId });
@@ -199,28 +205,6 @@ app.post('/api/create-session', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(400).json({error: error.message});
-    }
-});
-
-app.post('/api/join-session', async (req, res) => {
-    let { roomId, username } = req.body;
-    if (roomId === undefined || username === undefined) {
-        res.status(401).json({error: 'Missing roomId or username'});
-    }
-    else {
-        let room = rooms[roomId];
-
-        let roomExists = await db.roomExists({roomId});
-
-        if(!roomExists) 
-            res.status(404).json({error: "Room not found"});
-
-        if(!room) {
-            const data = await db.getRoom({ roomId, username });
-            res.json({ online: false, data }); //room isnot online
-        }
-
-        res.json({ online: true });
     }
 });
 
@@ -310,8 +294,10 @@ app.post('/api/join-restart-session', async (req,res)=>{
             //                            JOIN SESSION
             //
             //========================================================================            
-            let isOnline = (rooms[roomId] !== undefined);
-            res.status(200).json({online: isOnline, owner: false, data: room});
+            let isOnline = (rooms[roomId] !== undefined);            
+            let roomSummary = createRoomSummary(room);
+            await db.addJoinedRoomToUser({ username, roomSummary });
+            res.status(200).json({online: isOnline, owner: false, room});
         }
 
     } catch (error) {

@@ -46,8 +46,21 @@
         if (!doc.exists){
             throw new Error("User does not exist");
         }
-        const updateUser = await docRef_user.update({prevRooms : this.FieldValue.arrayUnion(roomSummary)})
-        return updateUser;
+
+        let user = doc.data();
+
+        let isDuplicateSummary = user.prevRooms.findIndex((each)=>each.id == roomSummary.id) != -1;
+
+        if(!isDuplicateSummary) {
+            console.log('added summary')
+            const updateUser = await docRef_user.update({prevRooms : this.FieldValue.arrayUnion(roomSummary)})
+            return updateUser;
+        }
+        else {
+            console.log('duplicate summary')
+        }
+
+        return user;
     }
     
     async addOwnedRoomToUser({username, roomSummary}) {
