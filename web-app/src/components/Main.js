@@ -42,12 +42,17 @@ const Main = () => {
 			return;
 		}
 
+		console.log(`Room Status: Online: ${response.online} Owner: ${response.owner}`);
 		if(response.online === false) {
 			//static data from response
-			let treeRoot = Tree.buildTree(response.data);
+			let nodeData = response.room.nodes;
+			let treeRoot = Tree.buildTree(nodeData);
 			setRootNode(treeRoot);
 			let _nodesByLevel = Tree.byLevel(treeRoot);
 			setNodesByLevel(_nodesByLevel);
+			//update for offline state
+			API.setNodeData(nodeData);
+			setIsOnline(false);
 			return;
 		}
 
@@ -57,12 +62,6 @@ const Main = () => {
 		API.apiEventEmitter.on('nodes-update', (data)=>{
 			let treeRoot = Tree.buildTree(data);
 			setRootNode(treeRoot);
-			
-		//       let out_arr = [];
-			// let visited = new Set();
-
-			// Tree.dfs(visited, treeRoot, out_arr, -1, 1);
-			
 			let _nodesByLevel = Tree.byLevel(treeRoot);
 			setNodesByLevel(_nodesByLevel);
 		});
@@ -168,7 +167,7 @@ const Main = () => {
 				<br/>
 
 				<button type="button" disabled={isOnline ? false : true} onClick={addResource}  className="sidebar-text" style={{ background: Colors.purple, borderRadius: 20, width:"75%", height:"2em", marginBottom: "1em",  display: `${sideBarExpand ? "inline-block" : "none"}`, cursor: 'pointer'}}>
-					<Add style={{width: 20, height: 20 , backgroundColor:"white", borderRadius: 10, marginRight:"0.5em"}}/> Add Resrouces
+					<Add style={{width: 20, height: 20 , backgroundColor:"white", borderRadius: 10, marginRight:"0.5em"}}/> Add Resources
 				</button>
 
 				{resources.map((level, idnex)=>

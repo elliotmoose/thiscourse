@@ -16,6 +16,10 @@ function getNodeData() {
     return nodeData;
 }
 
+function setNodeData(_nodeData) {
+    nodeData = _nodeData;
+}
+
 function getIsHost(sessionId) {
     return hostOfSessionIds.indexOf(sessionId) != -1;
 }
@@ -54,7 +58,7 @@ async function joinOrRestartSession(username, roomId) {
         })
     
         let response = await res.json();
-        return response;        
+        return response;
     } catch (error) {
         return {
             error: error.message
@@ -102,7 +106,7 @@ function socketConnect(roomId) {
                 return;
             }
             console.log(`= client: data received (${Object.values(data.nodes).length} node(s))`);
-            nodeData = data.nodes;
+            setNodeData(data.nodes);
             apiEventEmitter.emit('nodes-update', data.nodes);
         });
     })
@@ -182,5 +186,5 @@ async function userLogin(username, password) {
     return false;
 }
 
-const API = { createSession, joinOrRestartSession, restartSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, getIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
+const API = { createSession, joinOrRestartSession, restartSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, setNodeData, getIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
 export default API;
