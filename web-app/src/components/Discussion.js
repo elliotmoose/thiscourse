@@ -72,28 +72,30 @@ function Discussion(props) {
   }
   
   return (
-    <div className="discussion">
-      <div onClick={exitDiscussion} style={{display: 'flex', justifyContent: 'flex-end', position: 'static', top: 12, right: 12, alignItems: 'center', cursor: 'pointer'}}>
-          <div style={{marginLeft: -5, height: 25, width: 25}}><FullscreenExit style={{color: '#B0B0B0'}}/></div>                
-          <div style={{color: '#B0B0B0', fontSize: 18}}>Click To Close Discussion</div>
-      </div>
-      
-      <div className="discussion-title">
-        <div style={{marginBottom:"20px"}}>{question}</div>
-        {/* <InputTitle type="text"></InputTitle> */}
-      </div>
-      <div className="discussion-body-container">
-        <div className="discussion-body">
-          {answers.map((item) => {
-            let isAnswer = (item.id == node.correctAnswerId && item.id !== undefined)
-            return <Answer nodeId={node.id} item={item} isAnswer={isAnswer}/>;
-          })}
+    <div className='container'>
+      <div className="discussion">
+        <div onClick={exitDiscussion} style={{display: 'flex', justifyContent: 'flex-end', position: 'static', top: 12, right: 12, alignItems: 'center', cursor: 'pointer'}}>
+            <div style={{marginLeft: -5, height: 25, width: 25}}><FullscreenExit style={{color: '#B0B0B0'}}/></div>                
+            <div style={{color: '#B0B0B0', fontSize: 18}}>Click To Close Discussion</div>
         </div>
-        <div style={{flex: 1}}/>
-      </div>
-      <div className="discussion-textbox">
-        <textarea className="discussion-textarea" ref={textAreaRef}></textarea>
-        <div className="discussion-submit" onClick={submitAnswer}>submit</div>
+        
+        <div className="discussion-title">
+          <div style={{marginBottom:"20px"}}>{question}</div>
+          {/* <InputTitle type="text"></InputTitle> */}
+        </div>
+        <div className="discussion-body-container">
+          <div className="discussion-body">
+            {answers.map((item) => {
+              let isAnswer = (item.id == node.correctAnswerId && item.id !== undefined)
+              return <Answer nodeId={node.id} item={item} isAnswer={isAnswer}/>;
+            })}
+          </div>
+          <div style={{flex: 1}}/>
+        </div>
+        <div className="discussion-textbox">
+          <textarea className="discussion-textarea" ref={textAreaRef}></textarea>
+          <div className="discussion-submit" onClick={submitAnswer}>submit</div>
+        </div>
       </div>
     </div>
   );
