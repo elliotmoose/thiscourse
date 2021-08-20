@@ -11,6 +11,8 @@ let apiEventEmitter = new APIEventEmitter();
 let clientSocket;
 let nodeData;
 let isHost = false;
+let inSession = false;
+let isOnline = false;
 
 function getNodeData() {
     return nodeData;
@@ -25,6 +27,22 @@ function setIsHost(_isHost) {
 }
 function getIsHost() {
     return isHost;
+}
+
+function setIsOnline(_isOnline) {
+    isOnline = _isOnline;
+    apiEventEmitter.emit('update-is-online');
+}
+function getIsOnline() {
+    return isOnline;
+}
+
+function isInSession() {
+    return inSession;
+}
+
+function setInSession(_inSession) {
+    inSession = _inSession;
 }
 
 async function createSession(username, discourse) {
@@ -67,18 +85,6 @@ async function joinOrRestartSession(username, roomId) {
     }
 }
 
-async function restartSession(username, roomId) {
-    if(!username || !roomId) {
-        console.error('no username or roomid specified');
-        return;
-    }
-
-    let res = await fetch(`${SERVER_DOMAIN}/api/restart-session`, {
-        method: 'POST',
-        body: JSON.stringify({ username, roomId }),
-        headers: { 'Content-Type': 'application/json' }
-    })
-}
 async function loadDashboard(username) {
     if(!username) return {
         error: 'no username provided'
@@ -99,6 +105,10 @@ function socketConnect(roomId) {
     return new Promise((resolve, reject) => {
         clientSocket = new ioclient(`${SERVER_DOMAIN}/${roomId}`);
         clientSocket.on('connect', resolve);
+        clientSocket.on('disconnect', ()=>{
+            console.log('==CLIENT DISCONNECT EVENT')
+            setIsOnline(false);                        
+        });
         clientSocket.on('error', (data)=>alert(data));
         clientSocket.on('nodes-update', (data) => {
             if(!data || !data.nodes) {
@@ -110,7 +120,22 @@ function socketConnect(roomId) {
             setNodeData(data.nodes);
             apiEventEmitter.emit('nodes-update', data.nodes);
         });
+
+        clientSocket.on('check-is-owner', (ownerId)=>{
+            if(ownerId === User.getUsername()) {
+                clientSocket.emit('claim-ownership', ownerId);
+            }
+        });
     })
+}
+
+function socketDisconnect() {
+    console.log('=== disconnecting...')
+    if(clientSocket) {
+        clientSocket.disconnect();
+        clientSocket = undefined;
+    }
+    setInSession(false);
 }
 
 async function requestNodeData(roomId) {
@@ -187,5 +212,5 @@ async function userLogin(username, password) {
     return false;
 }
 
-const API = { createSession, joinOrRestartSession, restartSession, socketConnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, setNodeData, getIsHost, setIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
+const API = { createSession, joinOrRestartSession, getIsOnline, setIsOnline, isInSession,setInSession, socketConnect, socketDisconnect, requestNodeData, addNode, addAnswer, apiEventEmitter, nodeData, getNodeData, setNodeData, getIsHost, setIsHost, markAsCorrectAnswer, registerUser, userLogin, voteAnswer, loadDashboard};
 export default API;

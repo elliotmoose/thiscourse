@@ -13,10 +13,14 @@ function Discussion(props) {
   
   const history = useHistory()
   let [node, setNode] = useState(undefined);
-  let [isOnline, setIsOnline] = useState(true);
+  let [isOnline, setIsOnline] = useState(API.getIsOnline());
   let textAreaRef = useRef();
 
   useEffect(()=>{
+    API.apiEventEmitter.on('update-is-online', ()=>{
+			setIsOnline(API.getIsOnline());
+		})
+
     if(!API.getNodeData()) {
       API.requestNodeData(sessionId);
     }

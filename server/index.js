@@ -193,7 +193,7 @@ app.post('/api/create-session', async (req, res) => {
             let root = createNode(discourse, username);
             let room = createRoom(roomId, root, username);
             rooms[roomId] = room;
-            initSocketNamespace(roomId);
+            initSocketNamespace(roomId, username);
             console.log(`* server: room created ${roomId}`);
             await db.initRoom({roomId, roomData: room});
 
@@ -282,7 +282,7 @@ app.post('/api/join-restart-session', async (req,res)=>{
             //========================================================================
             //we only want to init socket namespace once per server lifetime
             if(!rooms[roomId]) {
-                initSocketNamespace(roomId);
+                initSocketNamespace(roomId, username);
             }
     
             rooms[roomId] = room;
@@ -310,7 +310,7 @@ app.post('/api/join-restart-session', async (req,res)=>{
 // SERVER SOCKET IO
 //------------------------------------------------------------------------------------------------
 
-function initSocketNamespace(roomId) {
+function initSocketNamespace(roomId, ownerId) {
     console.log(`
     ==
     * NEW NAMESPACE CREATED: ${roomId}
@@ -424,7 +424,38 @@ function initSocketNamespace(roomId) {
             }
     
         })
+
+        //give a challenge, to identify owner
+        //when found owner, check for disconnect to turn room off
+        
+        socket.on('claim-ownership', (username)=>{
+            console.log(`==== OWNER ESTABLISHED : ${username} ${roomId}`);
+            socket.on('disconnect', ()=>{
+                rooms[roomId] = undefined;
+                deinitSocketNamespace(roomId);
+                console.log(`
+===========================
+HOST HAS DISCONNECTED: ${username} room: ${roomId}
+===========================
+                `);
+            })
+        })
+
+        socket.emit('check-is-owner', ownerId);
     });
+}
+
+function deinitSocketNamespace(roomId) {
+    let namespaceId = `/${roomId}`;
+    let namespace = io.of(namespaceId); // Get Namespace
+    // let connectedNameSpaceSockets = Object.keys(namespace.sockets); // Get Object with Connected SocketIds as properties
+    namespace.disconnectSockets(true);
+    // connectedNameSpaceSockets.forEach(socketId => {
+    //     namespace.sockets[socketId].disconnect(); // Disconnect Each socket
+    // });
+    namespace.removeAllListeners(); // Remove all Listeners for the event emitter
+    delete io._nsps[namespaceId]; // Remove from the server namespaces
+
 }
 
 server.listen(SERVER_PORT, () => {

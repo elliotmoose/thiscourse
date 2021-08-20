@@ -1,4 +1,4 @@
-import { Edit, Add } from '@material-ui/icons';
+import { Edit, Add, SettingsBrightnessSharp } from '@material-ui/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import API from '../controllers/api';
@@ -25,7 +25,7 @@ const Main = () => {
     let [nodesByLevel, setNodesByLevel] = useState([]);
     let [sideBarExpand, setSideBarExpand] = useState(false);
     let [modalOpen, setModalOpen] = useState(false);
-    let [isOnline, setIsOnline] = useState(true);
+    let [isOnline, setIsOnline] = useState(API.getIsOnline());
 // TODO: SAMPLE RESOURCE OBJECT, PLEASE SEAN HELP ME ADD THIS TO THE ROOM FIREBAASE OBJECT THANK YOU#################
 	let resource = {resourceTitle:"", resourceType:"article", resourceURL:""} 									//###
 // ##################################################################################################################
@@ -34,7 +34,19 @@ const Main = () => {
 	let [coverImgURL, setCoverImgURL] = useState("https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2017/08/nostalgia_design.jpg");
 	// let coverImgURL = "https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2017/08/nostalgia_design.jpg";
 	async function onLoadSession() {
+
 		let username = User.getUsername();
+
+		console.log(`In Session: ${API.isInSession()}`);
+		if(API.isInSession()) {
+			//if in session, just load from memory
+			let treeRoot = Tree.buildTree(API.getNodeData());
+			setRootNode(treeRoot);
+			let _nodesByLevel = Tree.byLevel(treeRoot);
+			setNodesByLevel(_nodesByLevel);
+			return;
+		}
+
 		let response = await API.joinOrRestartSession(username, sessionId);//join if not owner, restart if owner
 		if(!response || response.error) {
 			alert(response.error ? response.error : 'failed to enter session');
@@ -45,8 +57,9 @@ const Main = () => {
 		if(response.owner !== null && response.owner !== undefined) {
 			API.setIsHost(response.owner);
 		}
-		
+
 		console.log(`Room Status: Online: ${response.online} Owner: ${response.owner}`);
+		API.setIsOnline(response.online === true ? true : false);
 		if(response.online === false) {
 			//static data from response
 			let nodeData = response.room.nodes;
@@ -56,31 +69,43 @@ const Main = () => {
 			setNodesByLevel(_nodesByLevel);
 			//update for offline state
 			API.setNodeData(nodeData);
-			setIsOnline(false);
+			API.setInSession(true);
 			return;
 		}
+
+		API.setInSession(true);
 
 		//IMPLEMENTATION NOTE: if session is validated to be online, connect to it
 		await API.socketConnect(sessionId);
 		
+		API.requestNodeData(sessionId); //socket request
+	}
+
+    useEffect(()=>{
+		API.apiEventEmitter.on('update-is-online', ()=>{
+			setIsOnline(API.getIsOnline());
+		})
 		API.apiEventEmitter.on('nodes-update', (data)=>{
 			let treeRoot = Tree.buildTree(data);
 			setRootNode(treeRoot);
 			let _nodesByLevel = Tree.byLevel(treeRoot);
 			setNodesByLevel(_nodesByLevel);
 		});
-		
-		API.requestNodeData(sessionId); //socket request
-	}
 
-    useEffect(()=>{
 		//check if session is online
 		//if session offline, display static data
-		//else, connect
+		//else, connect		
 		onLoadSession();
+
+		history.listen((location, action)=>{
+			if(!location.pathname.match('^/session')) {
+				//reset connection
+				API.socketDisconnect();
+			}
+		});
     }, []);
 
-    var question = nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0] && nodesByLevel[0][0].question || 'loading question...';
+    var question = (nodesByLevel && nodesByLevel[0] && nodesByLevel[0][0] && nodesByLevel[0][0].question) || 'loading question...';
 
 	function addNode() {
         let question = prompt('Enter a question:');

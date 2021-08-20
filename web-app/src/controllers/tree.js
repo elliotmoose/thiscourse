@@ -56,7 +56,7 @@ function dfs(visited, rootNode, arr, l, i){
         }
 
         // Add to visited node
-        console.log(`at level ${level} node ${idx}`)
+        // console.log(`at level ${level} node ${idx}`)
         visited.add(node.id);
         if(node.children){
             // If node has children, loop through children
@@ -66,7 +66,7 @@ function dfs(visited, rootNode, arr, l, i){
                 // idx = out_idx+1;
                 // idx += 1;
 
-                console.log(`Backtrack! out_idx: ${out_idx} idx: ${idx}`)
+                // console.log(`Backtrack! out_idx: ${out_idx} idx: ${idx}`)
                 if(ii<node.children.length-1){
                     idx = 1+out_idx;
                 }else{
@@ -92,7 +92,7 @@ function byLevel(rootNode) {
 
     let node = rootNode;
     let queue = [rootNode];
-    console.log(out_arr);
+    // console.log(out_arr);
     while(queue.length != 0) {
         let tempQueue = [] 
         for(let node of queue) {
